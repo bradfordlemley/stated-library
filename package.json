@@ -6,10 +6,11 @@
     "build": "lerna run build",
     "build:clean": "npm run clean && npm run build",
     "dev": "jest --watch --notify",
-    "prep-release": "yarn reset && yarn build:clean && yarn test",
+    "prepare": "yarn build:clean && yarn test",
     "reset": "lerna clean -y && yarn",
     "start": "unfig start",
-    "test": "unfig test"
+    "test": "unfig test",
+    "release": "yarn reset && lerna version --no-push"
   },
   "devDependencies": {
     "@unfig/toolkit-monorepo": "^0.0.4-alpha.0",
