@@ -1,6 +1,5 @@
 import throttle from 'lodash/throttle';
-import { StatedLibrary } from '@stated-library/interface';
-import createMulti, { createMultiConnector } from './multiConnect';
+import createMulti from './multiConnect';
 
 function getStateFromLocalStorage(name) {
   try {
@@ -24,7 +23,10 @@ export function createLocalStorageConnector() {
       const writeState = state => {
         localStorage.setItem(key, JSON.stringify(state));
       };
-      writeFns[key] = throttle(writeState, 300);
+      writeFns[key] = throttle(writeState, 300, {
+        leading: true,
+        trailing: true,
+      });
       return {
         ...sub,
         clear: () => localStorage.removeItem(key),
