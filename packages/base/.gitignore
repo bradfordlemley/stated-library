@@ -1,0 +1,6 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+*.log
+**/node_modules/**
+**/dist/**

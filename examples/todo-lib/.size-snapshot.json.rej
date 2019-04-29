@@ -1,0 +1,4 @@
+diff a/examples/todo-lib/.size-snapshot.json b/examples/todo-lib/.size-snapshot.json	(rejected hunks)
+@@ -8 +8 @@
+-    "bundled": 47206,
++    "bundled": 47205,

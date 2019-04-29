@@ -1,0 +1,37 @@
+{
+  "name": "@stated-library/settings-lib",
+  "license": "MIT",
+  "version": "0.5.0",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "scripts": {
+    "build": "unfig build",
+    "dev": "unfig dev",
+    "start": "unfig start",
+    "test": "unfig test"
+  },
+  "dependencies": {
+    "@stated-library/base": "0.5.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "7.1.5",
+    "@babel/core": "7.1.6",
+    "@babel/plugin-proposal-class-properties": "7.1.0",
+    "@babel/plugin-proposal-object-rest-spread": "7.0.0",
+    "@babel/preset-env": "7.1.6",
+    "@babel/preset-flow": "7.0.0",
+    "@babel/preset-react": "7.0.0",
+    "@babel/preset-typescript": "7.1.0",
+    "@unfig/toolkit-react-comp": "^0.0.3-alpha.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "10.0.1",
+    "babel-jest": "23.6.0",
+    "eslint": "5.9.0",
+    "eslint-plugin-flowtype": "3.2.0",
+    "eslint-plugin-jsx-a11y": "^6.2.0",
+    "eslint-plugin-react": "7.11.1",
+    "jest": "^24.1.0",
+    "rollup": "^1.4.0",
+    "unfig": "^0.0.3-alpha.0"
+  }
+}

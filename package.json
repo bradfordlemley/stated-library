@@ -1,0 +1,33 @@
+{
+  "author": "Bradford Lemley <bradfordlemley@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "lerna exec -- rimraf dist",
+    "build": "lerna run build",
+    "build:clean": "npm run clean && npm run build",
+    "dev": "jest --watch --notify",
+    "prep-release": "yarn reset && yarn build:clean && yarn test",
+    "reset": "lerna clean -y && yarn",
+    "start": "unfig start",
+    "test": "unfig test"
+  },
+  "devDependencies": {
+    "@unfig/toolkit-monorepo": "^0.0.4-alpha.0",
+    "husky": "^1.3.1",
+    "jest-junit": "^6.3.0",
+    "lerna": "^3.13.1",
+    "rimraf": "2.6.3",
+    "unfig": "^0.0.3-alpha.0"
+  },
+  "workspaces": {
+    "packages": [
+      "examples/*",
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/react-scripts/**"
+    ]
+  },
+  "private": true,
+  "name": "@stated-library/root"
+}

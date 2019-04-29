@@ -1,0 +1,46 @@
+#
+# Steps for building and testing Jest. See jobs defined in .azure-pipelines.yml
+#
+
+# Clones the repo
+steps:
+  - checkout: self
+
+  # Ensure Node.js 10 is active
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.x'
+    displayName: 'Use Node.js 10'
+
+  # Run yarn to install dependencies
+  - script: yarn --frozen-lockfile
+    displayName: 'Install dependencies'
+
+  # Build
+  - script: yarn build
+    displayName: 'Build'
+
+  # Run test-ci-partial
+  - script: yarn test --reporters default --reporters jest-junit --coverage --coverageReporters cobertura --coverageReporters text
+    env:
+      JEST_JUNIT_OUTPUT_DIR: "reports/junit"
+    displayName: 'Run tests'
+
+  # Publish CI test results
+  - task: PublishTestResults@2
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: '**/reports/junit/*.xml'
+      # searchFolder: $(JEST_DIR)
+      # testRunTitle: 'CI Tests $(Agent.OS)'
+    displayName: 'Test results'
+    condition: succeededOrFailed()
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation:  '**/coverage/cobertura-coverage.xml'
+
+  - bash: bash <(curl -s https://codecov.io/bash)
+    env:
+      CODECOV_TOKEN: ${CODECOV_TOKEN}

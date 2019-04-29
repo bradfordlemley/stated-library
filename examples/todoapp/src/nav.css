@@ -1,0 +1,22 @@
+
+.nav ul {
+  list-style: none;
+  text-align: right;
+}
+
+.nav li {
+  display: inline;
+}
+
+.nav li a {
+  color: inherit;
+  margin: 3px;
+  padding: 3px 7px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.nav li a.selected {
+  border-color: rgba(175, 47, 47, 0.2);
+}

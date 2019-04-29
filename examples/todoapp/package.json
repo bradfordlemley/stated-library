@@ -1,0 +1,41 @@
+{
+  "name": "@stated-library/todoapp",
+  "version": "0.5.0",
+  "dependencies": {
+    "@stated-library/nav-lib": "0.5.0",
+    "@stated-library/react": "0.5.0",
+    "@stated-library/settings-lib": "0.5.0",
+    "@stated-library/todo-lib": "0.5.0",
+    "classnames": "^2.2.6",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
+    "todomvc-app-css": "^2.2.0",
+    "todomvc-common": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/classnames": "^2.2.7",
+    "@types/jest": "^24.0.11",
+    "@types/node": "^11.11.3",
+    "@types/react": "^16.8.8",
+    "@types/react-dom": "^16.8.2",
+    "react-scripts": "2.1.5",
+    "typescript": "^3.4"
+  },
+  "scripts": {
+    "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
+    "build": "SKIP_PREFLIGHT_CHECK=true react-scripts build",
+    "dev": "SKIP_PREFLIGHT_CHECK=true react-scripts test",
+    "test": "SKIP_PREFLIGHT_CHECK=true react-scripts test --no-watch",
+    "eject": "react-scripts eject",
+    "pre-commit": "npm run test"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
