@@ -1,7 +1,7 @@
 {
   "name": "@stated-library/rxjs",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
@@ -15,8 +15,8 @@
   },
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@stated-library/base": "^1.0.1",
-    "@stated-library/core": "^1.0.1",
+    "@stated-library/base": "^1.0.2",
+    "@stated-library/core": "^1.0.2",
     "@stated-library/interface": "^1.0.1"
   },
   "devDependencies": {
