@@ -3,7 +3,7 @@
   "description": "Simplified state",
   "license": "MIT",
   "author": "Bradford Lemley",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
@@ -16,8 +16,8 @@
   },
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@stated-library/core": "^1.0.0",
-    "@stated-library/interface": "^1.0.0"
+    "@stated-library/core": "^1.0.1",
+    "@stated-library/interface": "^1.0.1"
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",

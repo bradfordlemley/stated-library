@@ -1,7 +1,7 @@
 {
   "name": "@stated-library/nav-lib",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
@@ -15,7 +15,7 @@
   },
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@stated-library/base": "^1.0.0"
+    "@stated-library/base": "^1.0.1"
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",
