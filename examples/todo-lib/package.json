@@ -4,12 +4,16 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "unfig build",
     "dev": "unfig dev",
     "start": "unfig start",
     "test": "unfig test"
   },
+  "typings": "dist/index.d.ts",
   "dependencies": {
     "@stated-library/base": "^1.0.0",
     "cuid": "^2.1.6",

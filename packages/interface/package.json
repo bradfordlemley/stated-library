@@ -4,10 +4,14 @@
   "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.es.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "unfig tscDefs --listEmittedFiles",
     "start": "unfig tscDefs -w --listEmittedFiles"
   },
+  "typings": "dist/index.d.ts",
   "devDependencies": {
     "@babel/cli": "7.1.5",
     "@babel/core": "7.1.6",
