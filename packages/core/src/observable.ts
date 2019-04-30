@@ -45,7 +45,7 @@ export default function createObservable<Value>(
       // is maybe not great for React, because it invokes handler with the
       // same value that things were probably initialized with, but that
       // probably doesn't really effect anything much.
-      observer.next(value);
+      observer.next(this.value);
       return {
         unsubscribe: () => {
           observers = observers.filter(l => l !== observer);
