@@ -1,76 +1,58 @@
-import StatedLibBase from './StatedLibBase';
-
-export default function makeTests(Base: typeof StatedLibBase) {
+function makeTests(createCounter, isRxJs = false) {
   let subs;
 
   beforeEach(() => (subs = []));
 
   afterEach(() => subs.map(sub => sub.unsubscribe()));
 
-  class Counter extends Base<{ counter: number }> {
-    notAFunction;
-    constructor(counter: number = 0) {
-      super({ counter });
-      // this.notAFunction = 1;
-      Base.bindMethods(this);
-    }
-    set(counter) {
-      this.updateState({ counter }, 'SET');
-    }
-    increment() {
-      this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
-    }
-    decrement() {
-      this.updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
-    }
-  }
-
   test('Initializes with default', () => {
-    const counterLib = new Counter();
+    const counterLib = createCounter();
     expect(counterLib.state.counter).toEqual(0);
   });
 
   test('Initializes with value', () => {
-    const counterLib = new Counter(34);
+    const counterLib = createCounter(34);
     expect(counterLib.state.counter).toEqual(34);
   });
 
   test('Increments', () => {
-    const counterLib = new Counter();
+    const counterLib = createCounter();
     counterLib.increment();
     expect(counterLib.state.counter).toEqual(1);
   });
 
   test('Decrements', () => {
-    const counterLib = new Counter();
+    const counterLib = createCounter();
     counterLib.decrement();
     expect(counterLib.state.counter).toEqual(-1);
   });
 
   test('Methods are bound', () => {
-    const counterLib = new Counter();
-    const counterLib2 = new Counter();
+    const counterLib = createCounter();
+    const counterLib2 = createCounter();
     const { decrement, increment } = counterLib;
     const { decrement: decrement2, increment: increment2 } = counterLib2;
     increment();
     expect(counterLib.state.counter).toEqual(1);
   });
 
-  test('Attempting to modify state directly throws', () => {
-    const counterLib = new Counter();
-    // @ts-ignore
-    expect(() => (counterLib.state = { counter: 23 })).toThrow();
-    expect(counterLib.state.counter).toEqual(0);
-  });
+  if (!isRxJs) {
+    test('Attempting to modify state directly throws', () => {
+      const counterLib = createCounter();
+      // @ts-ignore
+      expect(() => (counterLib.state = { counter: 23 })).toThrow();
+      expect(counterLib.state.counter).toEqual(0);
+    });
 
-  test('Attempting to modify state property directly throws', () => {
-    const counterLib = new Counter();
-    expect(() => (counterLib.state.counter = 23)).toThrow();
-    expect(counterLib.state.counter).toEqual(0);
-  });
+    test('Attempting to modify state property directly throws', () => {
+      const counterLib = createCounter();
+      expect(() => (counterLib.state.counter = 23)).toThrow();
+      expect(counterLib.state.counter).toEqual(0);
+    });
+  }
 
   test('Notifies state$ and stateEvent$ observers', () => {
-    const counterLib = new Counter();
+    const counterLib = createCounter();
     const eventHandler = jest.fn();
     const stateHandler = jest.fn();
     subs.push(counterLib.stateEvent$.subscribe(eventHandler));
@@ -104,7 +86,7 @@ export default function makeTests(Base: typeof StatedLibBase) {
   });
 
   test(`Doesn't notify subscribers after they unsubscribe`, () => {
-    const counterLib = new Counter();
+    const counterLib = createCounter();
     const eventHandler = jest.fn();
     const stateHandler = jest.fn();
     subs.push(counterLib.stateEvent$.subscribe(eventHandler));
@@ -132,7 +114,7 @@ export default function makeTests(Base: typeof StatedLibBase) {
   });
 
   test(`Setting same state fires stateEvent$ but not state$`, () => {
-    const counterLib = new Counter();
+    const counterLib = createCounter();
     const stateHandler = jest.fn();
     const eventHandler = jest.fn();
     subs.push(counterLib.stateEvent$.subscribe(eventHandler));
@@ -154,7 +136,7 @@ export default function makeTests(Base: typeof StatedLibBase) {
   });
 
   test(`Can reset state`, () => {
-    const counterLib = new Counter();
+    const counterLib = createCounter();
     const eventHandler = jest.fn();
     const stateHandler = jest.fn();
     subs.push(counterLib.stateEvent$.subscribe(eventHandler));
@@ -179,20 +161,16 @@ export default function makeTests(Base: typeof StatedLibBase) {
 
   test(`Works with NODE_ENV==='production'`, () => {
     const { env } = process;
-    env['NODE_ENV'] = 'production';
-    const counterLib = new Counter();
+    function setNodeEnv(e, nodeEnv) {
+      e.NODE_ENV = nodeEnv;
+    }
+    setNodeEnv(env, 'production');
+    const counterLib = createCounter();
     const eventHandler = jest.fn();
     const stateHandler = jest.fn();
     subs.push(counterLib.stateEvent$.subscribe(eventHandler));
     subs.push(counterLib.state$.subscribe(stateHandler));
   });
-
-  test(`bindMethods skips non-function properties`, () => {
-    function Thing() {}
-    Thing.prototype.name = 'defaultThing';
-    const thing = new Thing();
-    Base.bindMethods(thing);
-  });
 }
 
-export { makeTests };
+module.exports = makeTests;

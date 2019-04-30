@@ -105,23 +105,6 @@ class LibBase<RawState, State = RawState, Meta = {}>
   }
 }
 
-// const createLibBase = <RawState, State=RawState, Meta={}> (
-//   createObs: CreateObservable<RawState, State, Meta>,
-//   initialState?: RawState,
-//   opts?: LibOpts<RawState, State>
-// ) => ({
-//   stateEvent$: createObs(makeStateEvent(initialState, "INIT", {}, opts)),
-//   setState: function(rawState: RawState, event: string, meta?: Meta) {
-//     const stateData = makeStateEvent(rawState, event, meta, opts);
-//     this.state = stateData.state;
-//     this.stateEvent$.next(stateData);
-//   },
-//   updateState: function (updates: Partial<RawState>, event: string, meta?: Meta) {
-//     const rawState = Object.assign({}, this.stateEvent$.value.rawState, updates);
-//     this.setState(rawState, event, meta);
-//   },
-// })
-
 export default LibBase;
 
 export { LibBase };

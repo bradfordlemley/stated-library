@@ -1,9 +1,11 @@
 import { mapState } from './index';
 import {
-  makeMapStateTests,
   createObservable,
   mapState as coreMapState,
 } from '@stated-library/core';
+
+import makeMapStateTests from '../../core/test/makeMapStateTests';
+
 import { BehaviorSubject } from 'rxjs';
 
 makeMapStateTests(mapState, value => new BehaviorSubject(value), true);
