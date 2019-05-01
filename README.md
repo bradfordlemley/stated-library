@@ -722,11 +722,15 @@ devTools.connect(visLib, 'visLib');
 Todo
 
 # Full Example Todo App
-The [TodoApp example](examples/todoapp) is a standard Todo-MVC app that deomonstrates all of the functionality of `Stated Libraries`, including DevTools debugging and Local State Hyrdation.
+The [TodoApp example](https://github.com/bradfordlemley/stated-library/tree/master/examples/todo-lib) is a Todo-MVC app that demonstrates `Stated Libraries`, including Redux DevTools and Local State Hyrdation.
 
-The example also demonstrates how easy it is to share `Stated Libraries` ... the Todo library used by the app is an independent package, [examples/todo-lib](examples/todo-lib).
+The app uses these external `Stated Libraries`:
+* Todo library: [examples/todo-lib](https://github.com/bradfordlemley/stated-library/tree/master/examples/todo-lib)
+* Nav library: [examples/nav-lib](https://github.com/bradfordlemley/stated-library/tree/master/examples/nav-lib)
 
-You can try it out the full example in CodeSandbox:
+Check out the app's [state.ts](https://github.com/bradfordlemley/stated-library/blob/master/examples/todoapp/src/state.ts), that's where everything comes together.
+
+You can try it out in CodeSandbox:
 
 [![Edit @stated-library/todoapp](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/bradfordlemley/stated-library/tree/master/examples/todoapp?fontsize=14)
 
