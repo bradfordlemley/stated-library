@@ -13,13 +13,19 @@ function link<State>(
 ) {
   let comp = component;
   let subscription;
+  let lastState = getValue(state$);
   comp.state = {
     ...(comp.state || {}),
-    ...getValue(state$),
+    ...lastState,
   };
   return {
     connect: () => {
-      subscription = state$.subscribe(state => comp.setState({ ...state }));
+      subscription = state$.subscribe(state => {
+        if (!Object.is(state, lastState)) {
+          lastState = state;
+          comp.setState({ ...state });
+        }
+      });
     },
     disconnect: () => {
       subscription.unsubscribe();

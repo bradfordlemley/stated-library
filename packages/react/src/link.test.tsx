@@ -80,25 +80,31 @@ class CounterCompMapped extends React.Component<{}, { counterState: any }> {
 }
 
 class TwoCounters extends React.Component<
-  {},
+  { renderCb?: (props: any, state: any) => void },
   { counter1: number; counter2: number; total: number }
 > {
   link;
 
   constructor(props) {
     super(props);
-    // hook up state updates
-    this.link = link(
-      this,
-      mapState(
-        [counterLib.state$, counterLib2.state$],
-        ([counter1State, counter2State]) => ({
-          counter1: counter1State.counter,
-          counter2: counter2State.counter,
-          total: counter1State.counter + counter2State.counter,
-        })
-      )
+
+    const total$ = mapState(
+      [counterLib.state$, counterLib2.state$],
+      ([counter1State, counter2State]) =>
+        counter1State.counter + counter2State.counter
     );
+
+    const mappedState$ = mapState(
+      [counterLib.state$, counterLib2.state$, total$],
+      ([counter1State, counter2State, total]) => ({
+        counter1: counter1State.counter,
+        counter2: counter2State.counter,
+        total,
+      })
+    );
+
+    // hook up state updates
+    this.link = link(this, mappedState$);
   }
 
   componentDidMount() {
@@ -112,15 +118,25 @@ class TwoCounters extends React.Component<
   }
 
   render() {
+    const { renderCb } = this.props;
+    renderCb && renderCb(this.props, this.state);
     const { counter1, counter2, total } = this.state;
     return (
       <div>
-        <button onClick={() => counterLib.decrement()}>-</button>
+        <button data-testid="dec1" onClick={() => counterLib.decrement()}>
+          -
+        </button>
         <span data-testid="count-value">{counter1}</span>
-        <button onClick={() => counterLib.increment()}>+</button>
-        <button onClick={() => counterLib2.decrement()}>-</button>
+        <button data-testid="inc1" onClick={() => counterLib.increment()}>
+          +
+        </button>
+        <button data-testid="dec2" onClick={() => counterLib2.decrement()}>
+          -
+        </button>
         <span data-testid="count2-value">{counter2}</span>
-        <button onClick={() => counterLib2.increment()}>+</button>
+        <button data-testid="inc2" onClick={() => counterLib2.increment()}>
+          +
+        </button>
         <span data-testid="total-value">{total}</span>
       </div>
     );
@@ -142,11 +158,14 @@ test('Single counter with mapState', () => {
 });
 
 test('Two counters with mapState', () => {
-  const { getByTestId, getByText } = render(<TwoCounters />);
+  const renderCb = jest.fn();
+  const { getByTestId } = render(<TwoCounters renderCb={renderCb} />);
   expect(getByTestId('count-value').textContent).toBe('0');
   expect(getByTestId('count2-value').textContent).toBe('0');
   expect(getByTestId('total-value').textContent).toBe('0');
-  fireEvent.click(getByText('+'));
+  expect(renderCb).toHaveBeenCalledTimes(1);
+  fireEvent.click(getByTestId('inc1'));
+  expect(renderCb).toHaveBeenCalledTimes(2);
   expect(getByTestId('count-value').textContent).toBe('1');
   expect(getByTestId('count2-value').textContent).toBe('0');
   expect(getByTestId('total-value').textContent).toBe('1');

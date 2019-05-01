@@ -1,28 +1,28 @@
 {
   "dist/index.umd.production.js": {
-    "bundled": 27517,
-    "minified": 6594,
-    "gzipped": 2654
+    "bundled": 28009,
+    "minified": 6752,
+    "gzipped": 2718
   },
   "dist/index.umd.development.js": {
-    "bundled": 27517,
-    "minified": 6594,
-    "gzipped": 2654
+    "bundled": 28009,
+    "minified": 6752,
+    "gzipped": 2718
   },
   "dist/index.production.js": {
-    "bundled": 10246,
-    "minified": 4885,
-    "gzipped": 1795
+    "bundled": 10704,
+    "minified": 5033,
+    "gzipped": 1868
   },
   "dist/index.development.js": {
-    "bundled": 10246,
-    "minified": 4885,
-    "gzipped": 1795
+    "bundled": 10704,
+    "minified": 5033,
+    "gzipped": 1868
   },
   "dist/index.es.js": {
-    "bundled": 9797,
-    "minified": 4497,
-    "gzipped": 1699,
+    "bundled": 10255,
+    "minified": 4645,
+    "gzipped": 1771,
     "treeshaked": {
       "rollup": {
         "code": 2205,

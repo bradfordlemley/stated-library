@@ -193,25 +193,32 @@ function mapState<
   ) => R
 ): Observable<R>;
 
-function mapState(streamOrStreams, mapState) {
+function mapState(streamOrStreams, mapState, opts?) {
   let valueOrValues;
   let value;
   let subscriptions;
   let isSubscribed = false;
 
-  function getValue() {
-    valueOrValues = getValueOrValues(streamOrStreams);
-    value = getMappedState(valueOrValues, mapState);
+  const iOpts = Object.assign({}, opts);
+
+  function updateValue(updateSourceValues = false) {
+    if (updateSourceValues) {
+      valueOrValues = getValueOrValues(streamOrStreams);
+    }
+    const newValue = getMappedState(valueOrValues, mapState);
+    if (!shallowEquals(newValue, value)) {
+      value = newValue;
+    }
     return value;
   }
 
-  const mapped$ = createObservable(getValue(), {
+  const mapped$ = createObservable(updateValue(true), {
     onUnsubscribe: () => {
       subscriptions.map(sub => sub.unsubscribe());
       isSubscribed = false;
     },
     onSubscribe: () => {
-      getValue();
+      updateValue(true);
       if (isArray(streamOrStreams)) {
         subscriptions = streamOrStreams.map((s, i) => {
           valueOrValues[i] = s.value;
@@ -230,16 +237,27 @@ function mapState(streamOrStreams, mapState) {
       }
       isSubscribed = true;
     },
-    getValue: () => (isSubscribed ? value : getValue()),
+    getValue: () => (isSubscribed ? value : updateValue(true)),
   });
 
-  function update() {
-    const newValue = getMappedState(valueOrValues, mapState);
-    if (!shallowEquals(newValue, value)) {
-      value = newValue;
+  function notify(newValue) {
+    if (iOpts.async) {
+      setTimeout(() => {
+        if (newValue === value) {
+          mapped$.next(value);
+        }
+      }, 0);
+    } else {
       mapped$.next(value);
     }
-    return value;
+  }
+
+  function update() {
+    const oldValue = value;
+    const newValue = updateValue();
+    if (newValue !== oldValue) {
+      notify(newValue);
+    }
   }
 
   return mapped$;
