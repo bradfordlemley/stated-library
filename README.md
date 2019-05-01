@@ -22,33 +22,34 @@
 <details>
 <summary><span style="font-weight: regular">Table of Contents</span></summary>
 
-* [Introduction](#Introduction)
-* [Interface](#Stated_Library_Interface)
-* [Creating a Stated Library](#Creating_a_Stated_Library)
-  * [Stated Library Base Class](#Stated_Library_Base_class)
-  * [Testing a Stated Library](#Testing_a_Stated_Library)
-  * [Async Functionality](#Async_Functionality)
-  * [Memoization](#Memoization)
-  * [Summary](#Summary)
-* [Using Stated Libraries](#Using_Stated_Libraries)
-  * [Multiple Stated Libraries](#Multiple_Stated_Libraries)
-  * [Mapping State](#Mapping_State)
-    * [Testing Mapped State](#Testing_Mapped_State)
-  * [React](#React)
-    * [HOC](#HOC)
-    * [Direct Injection](#Direct_Injection)
-  * [Library-to-Library Interactions](#Library-to-Library_Interactions)
-    * [Generic Interactions](#Generic_Interactions)
-    * [Interactions with Reactive Programming](#Interactions_with_Reactive_Programming)
-    * [Internal Reactive Programming](#Internal_Reactive_Programming)
-* [Tooling](#Tooling)
-  * [Time-travel Debugging](#Time-travel_Debugging)
-  * [Hydrate from Local Storage](#Hydrate_from_Local_Storage)
-  * [SSR](#SSR)
-* [Full Example Todo App](#Full_Example_Todo_App)
-* [Stated Libraries for Local State](#Stated_Libraries_for_Local_State)
-* [Stated Libraries for any state](#Stated_Libraries_for_any_state)
-* [Ode to Redux](#Ode_to_Redux)
+* [Introduction](#introduction)
+* [Interface](#stated-library-interface)
+* [Creating a Stated Library](#creating-a-stated-library)
+  * [Stated Library Base Class](#stated-library-base-class)
+  * [Testing a Stated Library](#testing-a-stated-library)
+  * [Async Functionality](#async-functionality)
+  * [Memoization](#memoization)
+  * [Summary](#summary)
+* [Using Stated Libraries](#using-stated-libraries)
+  * [Multiple Stated Libraries](#multiple-stated-libraries)
+  * [Mapping State](#mapping-state)
+    * [Testing Mapped State](#testing-mapped-state)
+  * [React](#react)
+    * [HOC](#connect)
+    * [Direct Injection](#direct-injection)
+  * [Library-to-Library Interactions](#library-to-library-interactions)
+    * [Generic Interactions](#generic-interactions)
+    * [Interactions with Reactive Programming](#interactions-with-reactive-programming)
+    * [Internal Reactive Programming](#internal-reactive-programming)
+* [Tooling](#tooling)
+  * [Time travel Debugging](#redux-devtools)
+  * [Hydrate from Local Storage](#hydrate-from-local-storage)
+  * [SSR](#ssr)
+* [Full Example Todo App](#full-example-todo-app)
+* [Stated Libraries for Local State](#stated-libraries-for-local-state)
+* [Stated Libraries for any state](#stated-libraries-for-any-state)
+* [Ode to Redux](#ode-to-redux)
+* [Packages](#packages)
 </details>
 
 ## Introduction
@@ -509,7 +510,7 @@ Notice that we used `visibleTodos$` as an input to create `appState$`.  This dem
 
 We added the `addTodo` function directly from `todoLib`.  We can do that because it was already bound using `StatedLib.bindMethods`, and it is a static value.  (It is possible for libraries to put methods on `state` which would allow `appData$` to be completely computed from `state` -- that might be developed as a best practice later on, but it's not necessary.)
 
-### Direct Injection: `use` or `link`
+### Direct Injection
 
 `connect` provides observable as props via an HOC, but observables can also be used without an HOC -- by directly injecting the value into components' state.
 
