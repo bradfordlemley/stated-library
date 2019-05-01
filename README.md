@@ -1,6 +1,11 @@
 # Stated Libraries
 **Simple, Clean, Powerful Unidirectional Data Flow ... everywhere.**
 
+**Fast to develop**, **easy to test** ... an **enjoyable developer experience** all the way to "done".
+
+**`Stated Libraries`** are essentially an alternative to `Redux` or `Mobx`, but they can be used any where there is `state`.
+
+
 [![License][license-badge]][license] [![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage]
 
 [build]: https://dev.azure.com/bradfordlemley/stated-library/_build/latest?definitionId=1&branchName=master
@@ -17,7 +22,7 @@
 
 [license]: https://github.com/bradfordlemley/stated-library/blob/master/LICENSE
 
-**`Stated Libraries`** are essentially an alternative to `Redux` or `Mobx`, but they can be used any where there is `state`.
+## Table of Contents
 
 <details>
 <summary><span style="font-weight: regular">Table of Contents</span></summary>
