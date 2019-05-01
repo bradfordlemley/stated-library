@@ -1,1 +1,3 @@
-export * from './StatedLibrary';
+export * from './StatedLibraryInterface';
+
+export { default } from './StatedLibraryInterface';

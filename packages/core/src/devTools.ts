@@ -1,4 +1,3 @@
-import { StatedLibrary } from '@stated-library/interface';
 import createMultiConnector from './multiConnect';
 
 const DEVTOOLS_SET_EVENT = '**__DEVTOOLS__**';

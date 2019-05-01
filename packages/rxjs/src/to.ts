@@ -1,16 +1,10 @@
 import {
-  StatedLibrary,
+  StatedLibraryInterface,
   StateEvent,
   MinObservable,
 } from '@stated-library/interface';
-import {
-  from,
-  BehaviorSubject,
-  Subject,
-  Observable,
-  ObservableInput,
-} from 'rxjs';
-import { multicast, map } from 'rxjs/operators';
+import { from, BehaviorSubject, Observable, ObservableInput } from 'rxjs';
+import { multicast } from 'rxjs/operators';
 
 function createMulticast(source, initialValue) {
   const subject = new BehaviorSubject(initialValue);
@@ -26,13 +20,13 @@ export function to$<V>(
 }
 
 export function toStateEvent$<RawState, State, Meta>(
-  lib: StatedLibrary<RawState, State, Meta>
+  lib: StatedLibraryInterface<RawState, State, Meta>
 ): BehaviorSubject<StateEvent<RawState, State, Meta>> {
   return createMulticast(to$(lib.stateEvent$), lib.stateEvent$.value);
 }
 
 export function toState$<RawState, State, Meta>(
-  lib: StatedLibrary<RawState, State, Meta>
+  lib: StatedLibraryInterface<RawState, State, Meta>
 ): BehaviorSubject<State> {
   return createMulticast(to$(lib.state$), lib.state$.value);
 }

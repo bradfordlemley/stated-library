@@ -37,5 +37,14 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "author": "Bradford Lemley <bradfordlemley@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bradfordlemley/stated-library.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bradfordlemley/stated-library/issues"
+  },
+  "homepage": "https://github.com/bradfordlemley/stated-library#readme"
 }

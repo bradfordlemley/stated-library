@@ -1,4 +1,4 @@
-import { combineLatest, from, Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import { isArray, shallowEqual } from '@stated-library/core';
 import { to$ } from './to';

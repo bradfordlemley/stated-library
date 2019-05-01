@@ -1,7 +1,7 @@
 import { shallowEqual } from '@stated-library/core';
 
 import {
-  StatedLibrary,
+  StatedLibraryInterface,
   StatedLibraryObservable,
   StateEvent,
 } from '@stated-library/interface';
@@ -51,7 +51,7 @@ function bindMethodsFromProto(obj) {
 }
 
 class LibBase<RawState, State = RawState, Meta = {}>
-  implements StatedLibrary<RawState, State, Meta> {
+  implements StatedLibraryInterface<RawState, State, Meta> {
   opts: LibOpts<RawState, State>;
   stateEvent$: StatedLibraryObservable<StateEvent<RawState, State, Meta>>;
   state$: StatedLibraryObservable<State>;

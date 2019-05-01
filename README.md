@@ -13,19 +13,11 @@
 
 [coverage-badge-az]: https://img.shields.io/azure-devops/coverage/bradfordlemley/stated-library/1/master.svg
 
-[downloads-badge-interface]: https://img.shields.io/npm/dm/@stated-library/interface.svg
-
 [license-badge]: https://img.shields.io/github/license/bradfordlemley/stated-library.svg
 
 [license]: https://github.com/bradfordlemley/stated-library/blob/master/LICENSE
 
-[npmcharts-interface]: http://npmcharts.com/compare/@stated-library/interface
-
-[package-interface]: https://www.npmjs.com/package/@stated-library/interface
-
-[version-badge-interface]: https://img.shields.io/npm/v/@stated-library/interface.svg
-
-**`Stated Libraries`** are essentially an alternative to `Redux` or `Mobx`, but they are an extremely generic approach to `state` and can be used any where there is `state`.
+**`Stated Libraries`** are essentially an alternative to `Redux` or `Mobx`, but they can be used any where there is `state`.
 
 <details>
 <summary><span style="font-weight: regular">Table of Contents</span></summary>
@@ -61,9 +53,9 @@
 
 ## Introduction
 
-**Unidirectional data flow is supposed to be a simplification**...  So, why are state management solutions like `flux` and `Redux` so weird and complicated?
+**Unidirectional data flow is supposed to be a simplification**...  so, why are state management solutions like `flux` and `Redux` so weird and complicated?
 
-...let `Stated Libraries` show you another way...
+Allow `Stated Libraries` to show you a simpler way...
 
 **`Stated Libraries`** are just **regular javascript objects**.
 

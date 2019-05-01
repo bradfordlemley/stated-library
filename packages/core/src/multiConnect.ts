@@ -1,4 +1,4 @@
-import { StatedLibrary } from '@stated-library/interface';
+import { StatedLibraryInterface } from '@stated-library/interface';
 
 export function createMultiConnector(opts: {
   onState?;
@@ -12,7 +12,10 @@ export function createMultiConnector(opts: {
 
   return {
     connectedLibs: {},
-    connect: function connect<State>(lib: StatedLibrary<State>, key: string) {
+    connect: function connect<State>(
+      lib: StatedLibraryInterface<State>,
+      key: string
+    ) {
       if (this.connectedLibs[key]) {
         throw new Error(`A library is already connected with key: ${key}`);
       }
