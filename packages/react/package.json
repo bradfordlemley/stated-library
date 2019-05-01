@@ -45,7 +45,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.0",
     "eslint-plugin-react": "7.11.1",
     "jest": "^24.1.0",
-    "react-testing-library": "^6.1.1",
+    "react-testing-library": "^7.0.0",
     "rollup": "^1.4.0",
     "typescript": "^3.4",
     "unfig": "^0.0.3-alpha.0"

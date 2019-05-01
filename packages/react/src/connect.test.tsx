@@ -14,36 +14,6 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-type Props2 = {
-  counter1: number;
-  counter2: number;
-  increment1: () => void;
-  decrement1: () => void;
-  increment2: () => void;
-  decrement2: () => void;
-  total: number;
-};
-
-const Counter2 = ({
-  counter1,
-  increment1,
-  decrement1,
-  counter2,
-  increment2,
-  decrement2,
-  total,
-}: Props2) => (
-  <div>
-    <button onClick={() => decrement1()}>-</button>
-    <span data-testid="count-value">{counter1}</span>
-    <button onClick={() => increment1()}>+</button>
-    <button onClick={() => decrement2()}>-</button>
-    <span data-testid="count2-value">{counter2}</span>
-    <button onClick={() => increment2()}>+</button>
-    <span data-testid="total-value">{total}</span>
-  </div>
-);
-
 type Props = {
   counter: number;
   increment: () => void;
@@ -133,25 +103,70 @@ test('Works with stateful component', () => {
 });
 
 test('Two counters with mapState', () => {
-  const prop$ = mapState(
-    [counterLib.state$, counterLib2.state$],
-    ([c1State, c2State]) => ({
-      counter1: c1State.counter,
-      counter2: c2State.counter,
-      total: c1State.counter + c2State.counter,
-      increment1: counterLib.increment.bind(counterLib),
-      decrement1: counterLib.decrement.bind(counterLib),
-      increment2: counterLib2.increment.bind(counterLib2),
-      decrement2: counterLib2.decrement.bind(counterLib2),
-    })
+  type Props2 = {
+    counter1: number;
+    counter2: number;
+    increment1: () => void;
+    decrement1: () => void;
+    increment2: () => void;
+    decrement2: () => void;
+    total: number;
+  };
+
+  const Counter2 = ({
+    counter1,
+    increment1,
+    decrement1,
+    counter2,
+    increment2,
+    decrement2,
+    total,
+  }: Props2) => (
+    <div>
+      <button data-testid="dec1" onClick={() => decrement1()}>
+        -
+      </button>
+      <span data-testid="count-value">{counter1}</span>
+      <button data-testid="inc1" onClick={() => increment1()}>
+        +
+      </button>
+      <button data-testid="dec2" onClick={() => decrement2()}>
+        -
+      </button>
+      <span data-testid="count2-value">{counter2}</span>
+      <button data-testid="inc2" onClick={() => increment2()}>
+        +
+      </button>
+      <span data-testid="total-value">{total}</span>
+    </div>
   );
 
-  const TwoCounters = connect(prop$)(Counter2);
+  const total$ = mapState(
+    [counterLib.state$, counterLib2.state$],
+    ([counter1State, counter2State]) =>
+      counter1State.counter + counter2State.counter
+  );
+
+  const prop$ = mapState(
+    [counterLib.state$, counterLib2.state$, total$],
+    ([c1State, c2State, total]) => ({
+      counter1: c1State.counter,
+      counter2: c2State.counter,
+      total,
+      increment1: counterLib.increment,
+      decrement1: counterLib.decrement,
+      increment2: counterLib2.increment,
+      decrement2: counterLib2.decrement,
+    })
+  );
+  const MockCounter2 = jest.fn(Counter2);
+  const TwoCounters = connect(prop$)(MockCounter2);
   const { getByTestId, getByText } = render(<TwoCounters />);
+  expect(MockCounter2).toHaveBeenCalledTimes(1);
   expect(getByTestId('count-value').textContent).toBe('0');
   expect(getByTestId('count2-value').textContent).toBe('0');
   expect(getByTestId('total-value').textContent).toBe('0');
-  fireEvent.click(getByText('+'));
+  fireEvent.click(getByTestId('inc1'));
   expect(getByTestId('count-value').textContent).toBe('1');
   expect(getByTestId('count2-value').textContent).toBe('0');
   expect(getByTestId('total-value').textContent).toBe('1');

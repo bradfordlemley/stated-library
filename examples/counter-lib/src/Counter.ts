@@ -3,6 +3,7 @@ import LibBase from '@stated-library/base';
 export default class Counter extends LibBase<{ counter: number }> {
   constructor(counter: number = 0) {
     super({ counter });
+    LibBase.bindMethods(this);
   }
   increment() {
     this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
