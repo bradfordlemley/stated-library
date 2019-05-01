@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/bradfordlemley/stated-library/issues"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
@@ -24,7 +24,7 @@
   },
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@stated-library/base": "^1.0.3"
+    "@stated-library/base": "^1.0.4"
   },
   "devDependencies": {
     "@babel/cli": "7.1.5",

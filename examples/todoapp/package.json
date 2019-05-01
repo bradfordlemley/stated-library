@@ -1,11 +1,11 @@
 {
   "name": "@stated-library/todoapp",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "dependencies": {
-    "@stated-library/nav-lib": "^1.0.3",
-    "@stated-library/react": "^1.0.3",
-    "@stated-library/settings-lib": "^1.0.3",
-    "@stated-library/todo-lib": "^1.0.3",
+    "@stated-library/nav-lib": "^1.0.4",
+    "@stated-library/react": "^1.0.4",
+    "@stated-library/settings-lib": "^1.0.4",
+    "@stated-library/todo-lib": "^1.0.4",
     "classnames": "^2.2.6",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
