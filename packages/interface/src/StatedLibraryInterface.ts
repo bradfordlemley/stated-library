@@ -29,9 +29,11 @@ export type StateEvent<RawState, State, Meta = {}> = {
   meta?: Meta;
 };
 
-export interface StatedLibrary<RawState, State = RawState, Meta = {}> {
+export interface StatedLibraryInterface<RawState, State = RawState, Meta = {}> {
   state: State;
   state$: StatedLibraryObservable<State>;
   stateEvent$: StatedLibraryObservable<StateEvent<RawState, State, Meta>>;
   resetState: (rawState: RawState, event: string, meta?: Meta) => void;
 }
+
+export default StatedLibraryInterface;

@@ -1,6 +1,15 @@
 {
   "name": "@stated-library/react",
   "license": "MIT",
+  "author": "Bradford Lemley <bradfordlemley@gmail.com>",
+  "homepage": "https://github.com/bradfordlemley/stated-library#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bradfordlemley/stated-library.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bradfordlemley/stated-library/issues"
+  },
   "version": "1.0.3",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -14,7 +23,6 @@
   },
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@stated-library/base": "^1.0.3",
     "@stated-library/core": "^1.0.3",
     "@stated-library/interface": "^1.0.2"
   },
