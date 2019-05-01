@@ -324,7 +324,7 @@ Note, the full [Todo library source](examples/todo-lib) is available in the [exa
 So far, we've covered how to create a `Stated Libraries`, now we'll look at how to use them.
 
 ## Multiple Stated Libraries
-A typical application would use several `Stated Libraries`.  A typical application would create global library instances together, e.g. in a `state.js` module.
+A typical application would use several `Stated Libraries` and would create global library instances together, e.g. in a `state.js` module.
 
 ```jsx
 // state.js
@@ -336,26 +336,26 @@ const visLib = new VisibilityLib();
 export {todoLib, visLib};
 ```
 
-`state.js` is analogous to where you'd create a global `Redux` store, but it is **not a global store** -- the library instances are still independent, self-contained objects.
-
-This is an important difference from `Redux` because it offers a more modular architecture and _better change isolation_.  With `Redux`, _every_ time _anything_ in the store is updated, _all_ store consumers need to handle the change, which can result in performance issues, especially for high-frequency changes.
+`state.js` is analogous to where a global `Redux` store sould be created, although the library instances are still independent, they are not tied together together like in a `Redux` store.
 
 ## Mapping State
 The `mapState` function takes one or more observables as input and creates a new observable.
 
 * `mapState(observableIn, transform) => observableOut`
 
-The `transform` function is called every time the `observableIn` emits a `state` and the result is emitted by `observableOut`.  (Actually, before the result is emitted, it is first shallowly compared vs. the previous result and it is only emitted if changed.)
+`mapState` can combine `state$` from multiple libraries and/or reshape `state$`.
 
-If `observableIn` is an array of observables, `mapState` calls the `transform` function every time any of the input observables change.  In this case, the `transform` function takes an array of the current `state` of all the input observables.
+`mapState` implements the composability formula -- observable in, observable out -- so the output of `mapState` can be used as an input to another `mapState`, or anywhere else an observable is used, and so on...
 
-`mapState` can be used to combine `state$` from mulitple libraries, or transform `state$` into another shape, or both.
+The `transform` function is called every time `observableIn` emits a `state`.  The result is shallow-compared against the previous result, and, if different, the new result is emitted on `observableOut`.
 
-And, the output of `mapState` can be used as the input to another `mapState`.
+`observableIn` can also be an array of observables, in which case the `transform` function receives an array of `state` and is called every time any of the input observables emits a `state`.
 
-So, `mapState` is the function that implements the **special composability sauce**.
+`mapState` achieves the same functionality as react-redux's `mapStateToProps` + `mapDispatch`, except that it is completely external to any application framework, and it is composable, whereas the react-redux functionality occurs inside the React binding (`connect`).  Implementing this functionality externally allows application logic to be completely platform-agnostic and allows it to be easily tested outside any application framework.
 
-The next example shows how `state$` from a `Todo` library and `Visibility` library could be combined to create `visibleTodos$`:
+The next example shows how `state$` from two `Stated Libraries`, a `Todo` library and a `Visibility` library, could be combined to create `visibleTodos$`:
+
+* `npm install @stated-library/core`
 
 ```jsx
 // state.js
@@ -364,6 +364,8 @@ import TodoLib from './TodoLib';
 import VisibilityLib from './VisibilityLib';
 const todoLib = new TodoLib();
 const visLib = new VisibilityLib();
+
+const todos$ = mapState(todoLib.state$, todoLibState => todos);
 
 const visibleTodos$ = mapState(
   [todoLib.state$, visLib.state$],
@@ -378,9 +380,8 @@ const visibleTodos$ = mapState(
     }
   } );
 
-export {todoLib, visLib, visibleTodos$};
+export {todoLib, visLib, todos$, visibleTodos$};
 ```
-Notice that `state.js` is still independent of any application framework -- which is great because it means that this application logic that can be used with any application framework and can be tested outside of any framework.
 
 ### Testing Mapped State
 
@@ -416,7 +417,7 @@ test('visibleTodos$ contains todos filtered thru visibilityFilter', () => {
 `getValue` is a utility function that can be used to retrieve the latest value from an observable.
 
 ### Redux-like Global Store
-You can actually create the equivalent of a `Redux` global store by combining all library `state$`'s into a single `state$`:
+`mapState` can combine `state$` from all libraries to create the  equivalent of a `Redux` global store:
 
 ```js
 // state.js
@@ -425,23 +426,50 @@ const state$ = mapState(
   [todoLib.state$, visLib.state$],
   ([todoState, visState]) => ({ todoState, visState })
 );
+
+const getTodos = state => ({todoState}) => todoState.todos;
+
+const getVisibleTodos = state => ({todoState, visState}) => {
+    switch(visState.visibility) {
+      case "completed":
+        return todoState.completedTodos;
+      case "active":
+        return todoState.activeTodos;
+      default:
+        return todoState.todos;
+    }
+  } );
+
+const todos$ = mapState(state$, getTodos);
+
+const visibleTodos$ = mapState(state$, getVisibleTodos);
+
+export { todoLib, visLib, state$, visibleTodos$, todos$, getTodos, getVisibleTodos };
 ```
-...but, it's not clear that would be a good idea.
+
+Notice that `state.js` still exports `visibleTodos$`, so the same tests from above can be used.
+
+There is some potential benefit to creating a single combined `state$` like this...
+
+If two streams from the same original source are combined later, multiple updates can occur downstream.  For example, if `visibleTodos$` and `todos$` are combined, the combined stream would update twice each time `todoLib.state$` updates, once for the `visibleTodos$` update and once for the `todos$` update.
+
+A single combined `state$` could potentially bypass that issue by only exporting the combined `state$` and accessor/selector functions (`getVisibleTodos`, not `visibleTodos$`).  That is essentially how `Redux` works.  But, that causes a different issue because all consumers get an update any time anything in the store changes.
+
+### Summary
+Perhaps some best practices will evolve, but for now, there's not a clearly better choice to combine all libraries state or not ... either way works great!  `Stated Libraries` offers some flexibility here, and hopefully that's a good thing.  
 
 ## React
 
-You don't need to do anything extra to make `Stated Libraries` compatible with `React`.
+You don't need to do anything extra to make `Stated Libraries` compatible with `React`.  The `React` bindings for `Stated Libraries` simply **inject observables** into `React` components.
 
-The **generic** `React` bindings for `Stated Libraries` are very simple -- they **inject observables** into `React`.  (In fact, the `React` bindings aren't really even specific for `Stated Libraries` -- they can be used for **any** observable.)
+### `connect`
+`connect` takes an observable and creates an HOC factory to provide the observable value as props to wrapped components.
 
-The `React` bindings come in two different flavors: HOC or direct inject.
+* `connect(state$)(component) => HOC`
 
-### HOC
-The **`connect`** binding is similar to `Redux`'s `connect`, creating an HOC "container" component.
+`connect` is similar to `react-redux` of the same name, but it doesn't take `mapStateToProps` because all of the mapping functionality is done externally.
 
-`Stated Libraries` `connect` doesn't take `mapStateToProps`, etc., because all of the mapping is done externally to the component using `mapState`.
-
-Here's how you could use `connect` in a application (using the `state.js` module from above):
+This example shows how to use `connect` with a container/presentation components style:
 
 ```jsx
 // App.js
@@ -479,11 +507,19 @@ export default connect(appState$)(App);
 ```
 Notice that we used `visibleTodos$` as an input to create `appState$`.  This demonstrates the power of `state$` observables composition.  We could have used `todoLib.state$` and `visLib.state$` as inputs, but we contained the `visibleTodos$` logic in `state.js`.
 
-Also, notice that we added `addTodo` directly from the `todoLib`.  We can do that because it was already bound using `bindMethods`, and we know it doesn't change.  It is possible to put these methods on the `state$` using derived state and that might be the recommended approach.  (TBD: add more discussion on this topic.)
+We added the `addTodo` function directly from `todoLib`.  We can do that because it was already bound using `StatedLib.bindMethods`, and it is a static value.  (It is possible for libraries to put methods on `state` which would allow `appData$` to be completely computed from `state` -- that might be developed as a best practice later on, but it's not necessary.)
 
-### Direct Injection
+### Direct Injection: `use` or `link`
 
-#### Functional Components
+`connect` provides observable as props via an HOC, but observables can also be used without an HOC -- by directly injecting the value into components' state.
+
+The **direct injection** method is different for stateful class components (which receive state via `setState`) vs functional components (which receive state via hooks).
+
+This **direct injection** method means there is no HOC, which also means that there's no container/presentational component.
+
+Again, both ways are valid...
+
+### Functional Components: `use`
 **`use`** is the direct injection mechanism for functional components.  It creates a React hook that updates the component whenever the observable emits a new value.
 
 ```jsx
@@ -518,8 +554,8 @@ export default () => {
 };
 
 ```
-#### Stateful Components
-**`link`** is the direct injection mechanism for stateful (class) components.  It spreads the observable's value onto the component's `state` by calling the component's `setState` method whenever the observable emits a new value.  `link` follows the standard life-cycle [subscription mechanism](https://reactjs.org/docs/react-component.html#componentdidmount).
+### Stateful Components: `link`
+**`link`** is the direct injection mechanism for stateful class components.  It spreads the observable's value onto the component's `state` by calling the component's `setState` method whenever the observable emits a new value.  `link` follows the standard life-cycle [subscription mechanism](https://reactjs.org/docs/react-component.html#componentdidmount).
 
 ```jsx
 // App.js
@@ -569,7 +605,7 @@ export default class App extends React.Component {
 ```
 
 ## Library-to-Library Interactions
-Since libraries are modular entities, we often want to tie them together somehow.  For example, maybe when something happens in Library A, you want to do something with Library B.
+Since libraries are modular entities, we often want to tie them together somehow -- basically an integration layer or a business logic layer.  For example, maybe when something happens in Library A, you want to do something with Library B.
 
 ### Generic Interactions
 The generic way to achieve library-to-library interaction is to monitor a library's `state$` or `stateEvent$` and do something when a certain state or event is encountered.
@@ -680,9 +716,14 @@ devTools.connect(visLib, 'visLib');
 ## SSR
 Todo
 
-
 # Full Example Todo App
 The [TodoApp example](examples/todoapp) is a standard Todo-MVC app that deomonstrates all of the functionality of `Stated Libraries`, including DevTools debugging and Local State Hyrdation.
+
+The example also demonstrates how easy it is to share `Stated Libraries` ... the Todo library used by the app is an independent package, [examples/todo-lib](examples/todo-lib).
+
+You can try it out the full example in CodeSandbox:
+
+[![Edit @stated-library/todoapp](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/bradfordlemley/stated-library/tree/master/examples/todoapp?fontsize=14)
 
 # Stated Libraries for Local State
 `Stated Libraries` can be used for **local state**, too.
@@ -717,6 +758,8 @@ export default AutoComplete;
 
 All of the tooling -- DevTools, etc. -- can be applied to local state, too!
 
+Todo: local `Stated Libraries` could be a really useful ... need more examples.
+
 
 # Stated Libraries for any state
 `Stated Libraries` were developed as a solution to State Management for applications, but they are a general solution for anything that manages `state`.
@@ -726,4 +769,14 @@ If you have a library with pieces of `state` scattered throughout various object
 Managing `state` using a `Stated Library` is a way to organize `state` within the library, and also provides some cool features for free, like time-travel debugging.
 
 # Ode to Redux
-Basically everything in `Stated Libraries` is informed by, borrowed from, or outright stolen from `Redux`.  Thanks Dan Abramov and `Redux`...:heart: :heart: :heart:.
+In case it's not obvious...basically everything in `Stated Libraries` is informed by, borrowed from, or outright stolen from `Redux`.  Thanks Dan Abramov and `Redux`...:heart: :heart: :heart:.
+
+# Packages
+`Stated Libraries` consists of several packages:
+
+| Package        | Contains           |
+| ------------- |:-------------:|
+| `@stated-library/interface` | Stated Library Interface definition (typescript) |
+| `@stated-library/core`      | `mapState`, `devTools`, `locStore`, `observable` |
+| `@stated-library/base`      | Base class for creating a `Stated Library`       |
+| `@stated-library/react`     | React bindings: `connect`, `use`, `link`         |
