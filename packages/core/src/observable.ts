@@ -41,10 +41,11 @@ export default function createObservable<Value>(
       observers.push(observer);
       // behave like a BehaviorSubject and emit the current value
       // upon subscription
-      // most reactive operations will need this behavior, although it
-      // is maybe not great for React, because it invokes handler with the
-      // same value that things were probably initialized with, but that
-      // probably doesn't really effect anything much.
+      // most reactive operations will need this behavior
+      // in cases (like React) where the initial value is retrieved before
+      // subscribing, the subscriber will get the same value upon subscribing,
+      // assuming it hasn't changed, so this behavior should result in minimal
+      // overhead
       observer.next(this.value);
       return {
         unsubscribe: () => {
