@@ -21,6 +21,9 @@
 
 **`Stated Libraries`** support **efficient and productive development** -- they are **fast to develop _and_ test** and **completely modular**.
 
+### Ode to Redux
+Almost everything in `Stated Libraries` is informed by, borrowed from, or outright stolen from `Redux`.  While many of the concepts used in `Redux` are brilliant, I personally find developing with `Redux` to be slow and painful, mainly due to: the boilerplate (action/reducer/etc for every little thing), the inability to implement complex functionality easily, the strange dependencies on external middleware, the inability to create self-contained modules, the coupling of everything into a single state, and the effort required to test all of the above.
+
 ## Table of Contents
 
 <details>
@@ -581,9 +584,6 @@ Todo: local `Stated Libraries` could be a really useful ... need more examples.
 If you have a library with pieces of `state` scattered throughout various object properties, e.g. `this.isFetching`, and it needs to notify clients when these properties change, consider combining them into a single immutable managed `state` property and converting it into a `Stated Library`.
 
 Managing `state` using a `Stated Library` is a way to organize `state` within the library, and also provides some cool features for free, like time-travel debugging.
-
-# Ode to Redux
-Basically everything in `Stated Libraries` is informed by, borrowed from, or outright stolen from `Redux`.  While many of the concepts used in `Redux` are brilliant, I personally find developing with `Redux` to be slow and painful compared to `Stated Libraries`, mainly due to: the boilerplate (action/reducer for every little thing), the inability to implement complex functionality (async) easily, the strange dependencies on external middleware, the inability to create a self-contained module, and the effort required to test all of the above.
 
 # Packages
 `Stated Libraries` consists of several packages:
