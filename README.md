@@ -172,9 +172,9 @@ expect("Fetches todos from cloud", async () => {
 ```
 
 ### React
-`Stated Libraries` are platform-agnostic and can be used in `React` without any modifications.  `React` components can use any `Stated Library` via the `connect` React binding.
+`Stated Libraries` are platform-agnostic and can be used in `React` without any modifications.  `React` components can use any `Stated Library` via generic `React` bindings.
 
-Here's how the `Todo` library could be used in a `React` app:
+Here's how the `Todo` library could be used in a `React` app using the [`connect`](#connect) binding:
 ```jsx
 // App.js
 import { connect } from '@stated-library/react';
@@ -462,6 +462,20 @@ function deriveState(rawState) {
 // ...
 ```
 
+# Full Example Todo App
+The [TodoApp example](https://github.com/bradfordlemley/stated-library/tree/master/examples/todo-lib) is a Todo-MVC app that demonstrates `Stated Libraries`, including derived state, memoization, multiple libraries, Redux DevTools, and Local State Hyrdation.
+
+The app uses these external `Stated Libraries`:
+* Todo library: [examples/todo-lib](https://github.com/bradfordlemley/stated-library/tree/master/examples/todo-lib)
+* Nav library: [examples/nav-lib](https://github.com/bradfordlemley/stated-library/tree/master/examples/nav-lib)
+
+Check out the app's [state.ts](https://github.com/bradfordlemley/stated-library/blob/master/examples/todoapp/src/state.ts), that's where everything comes together.
+
+You can try it out in CodeSandbox:
+
+[![Edit @stated-library/todoapp](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/bradfordlemley/stated-library/tree/master/examples/todoapp?fontsize=14)
+
+
 # Library-to-Library Interactions
 Since libraries are modular entities, we often want to tie them together somehow -- basically an integration layer or a business logic layer.  For example, maybe when something happens in Library A, you want to do something with Library B.
 
@@ -525,19 +539,6 @@ from(authLib.state$).pipe(
 
 #### Internal Reactive Programming
 The reactive programming discussed above is directed at library-to-library interactions -- external to libraries.  If you want to implement library functionality with reactive programming, and the functionality is logically contained in the library, then you should use reactive programming **internally** in the library.  (`Stated Libraries` can utilize reactive programming internally in their implementations, just like they can use Promises and other async functionality.)
-
-# Full Example Todo App
-The [TodoApp example](https://github.com/bradfordlemley/stated-library/tree/master/examples/todo-lib) is a Todo-MVC app that demonstrates `Stated Libraries`, including Redux DevTools and Local State Hyrdation.
-
-The app uses these external `Stated Libraries`:
-* Todo library: [examples/todo-lib](https://github.com/bradfordlemley/stated-library/tree/master/examples/todo-lib)
-* Nav library: [examples/nav-lib](https://github.com/bradfordlemley/stated-library/tree/master/examples/nav-lib)
-
-Check out the app's [state.ts](https://github.com/bradfordlemley/stated-library/blob/master/examples/todoapp/src/state.ts), that's where everything comes together.
-
-You can try it out in CodeSandbox:
-
-[![Edit @stated-library/todoapp](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/bradfordlemley/stated-library/tree/master/examples/todoapp?fontsize=14)
 
 # Stated Libraries for Local State
 `Stated Libraries` can be used for **local state**, too.
