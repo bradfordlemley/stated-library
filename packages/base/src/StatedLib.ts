@@ -1,4 +1,4 @@
-import { shallowEqual } from '@stated-library/core';
+import { shallowEqual, createObservable } from '@stated-library/core';
 
 import {
   StatedLibraryInterface,
@@ -10,6 +10,7 @@ type DeriveState<RawState, State> = (state: RawState) => State;
 
 type LibOpts<RawState, State> = {
   deriveState?: DeriveState<RawState, State>;
+  createObs?: ObservableCtor<any>;
 };
 
 // Minimal Observable
@@ -50,18 +51,15 @@ function bindMethodsFromProto(obj) {
   }
 }
 
-class LibBase<RawState, State = RawState, Meta = {}>
+class StatedLibBase<RawState, State = RawState, Meta = {}>
   implements StatedLibraryInterface<RawState, State, Meta> {
   opts: LibOpts<RawState, State>;
   stateEvent$: StatedLibraryObservable<StateEvent<RawState, State, Meta>>;
   state$: StatedLibraryObservable<State>;
 
-  constructor(
-    createObs: ObservableCtor<any>,
-    initialState?: RawState,
-    opts?: LibOpts<RawState, State>
-  ) {
+  constructor(initialState: RawState, opts?: LibOpts<RawState, State>) {
     this.opts = opts || {};
+    const createObs = this.opts.createObs || createObservable;
     const initialEvent = makeStateEvent(initialState, 'INIT', undefined, opts);
     this.stateEvent$ = createObs(initialEvent);
     this.state$ = createObs(initialEvent.state);
@@ -105,6 +103,39 @@ class LibBase<RawState, State = RawState, Meta = {}>
   }
 }
 
-export default LibBase;
+type GetMethods<Methods> = (base: any) => Methods;
 
-export { LibBase };
+export function createStatedLib<
+  RawState,
+  Methods = {},
+  State = RawState,
+  Meta = {}
+>(
+  initialState: RawState,
+  methodsOrGetMethods: Methods | GetMethods<Methods>,
+  opts?
+): StatedLibraryInterface<RawState, State, Meta> & Methods {
+  const base = new StatedLibBase(initialState, opts);
+  bindMethodsFromProto(base);
+
+  const methods =
+    typeof methodsOrGetMethods === 'function'
+      ? methodsOrGetMethods(base)
+      : methodsOrGetMethods;
+
+  const obj = {
+    get state() {
+      return this.stateEvent$.value.state;
+    },
+  };
+  Object.assign(obj, base, methods);
+
+  Object.keys(methods).forEach(method => (obj[method] = obj[method].bind(obj)));
+
+  // @ts-ignore
+  return obj;
+}
+
+export default StatedLibBase;
+
+export { StatedLibBase };

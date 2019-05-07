@@ -15,6 +15,10 @@ class Counter extends StatedLibRxJs<{ counter: number }> {
   increment() {
     this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
   }
+  async aincrement() {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+  }
   decrement() {
     this.updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
   }

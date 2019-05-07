@@ -1,5 +1,4 @@
-import StatedLibBase from './StatedLibBase';
-
+import { StatedLibBase } from '.';
 import makeTests from '../test/makeTests';
 
 class Counter extends StatedLibBase<{ counter: number }> {
@@ -12,6 +11,10 @@ class Counter extends StatedLibBase<{ counter: number }> {
   set(counter) {
     this.updateState({ counter }, 'SET');
   }
+  async aincrement() {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+  }
   increment() {
     this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
   }
@@ -20,11 +23,4 @@ class Counter extends StatedLibBase<{ counter: number }> {
   }
 }
 
-makeTests((initial?) => new Counter(initial));
-
-test(`bindMethods skips non-function properties`, () => {
-  function Thing() {}
-  Thing.prototype.name = 'defaultThing';
-  const thing = new Thing();
-  StatedLibBase.bindMethods(thing);
-});
+makeTests(initialValue => new Counter(initialValue));

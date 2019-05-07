@@ -21,6 +21,13 @@ function makeTests(createCounter, isRxJs = false) {
     expect(counterLib.state.counter).toEqual(1);
   });
 
+  test('Increments async', async () => {
+    const counterLib = createCounter();
+    const { aincrement } = counterLib;
+    await aincrement();
+    expect(counterLib.state.counter).toEqual(1);
+  });
+
   test('Decrements', () => {
     const counterLib = createCounter();
     counterLib.decrement();
