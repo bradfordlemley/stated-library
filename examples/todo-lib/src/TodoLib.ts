@@ -122,72 +122,72 @@ export class TodoLib extends StatedLibBase<RawState, State> {
   }
 }
 
-const createTodoLib = initial => createStatedLib(
-  initial,
-  ({updateState}) => ({
+const createTodoLib = (initial?) =>
+  createStatedLib(
+    initial || DEFAULT_STATE,
+    ({ updateState }) => ({
+      addTodo(text: string) {
+        updateState(
+          {
+            todos: this.state.todos.concat(makeTodo(text)),
+          },
+          'ADDTODO'
+        );
+      },
 
-    addTodo(text: string) {
-      updateState(
-        {
-          todos: this.state.todos.concat(makeTodo(text)),
-        },
-        'ADDTODO'
-      );
-    },
+      toggle(id: string) {
+        updateState(
+          {
+            todos: this.state.todos.map(todo =>
+              todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            ),
+          },
+          'TOGGLE_TODO'
+        );
+      },
 
-    toggle(id: string) {
-      updateState(
-        {
-          todos: this.state.todos.map(todo =>
-            todo.id === id ? { ...todo, completed: !todo.completed } : todo
-          ),
-        },
-        'TOGGLE_TODO'
-      );
-    },
+      toggleAll(completed: boolean) {
+        this.updateState(
+          {
+            todos: this.state.todos.map(todo =>
+              todo.completed === completed ? todo : { ...todo, completed }
+            ),
+          },
+          'TOGGLE_ALL'
+        );
+      },
 
-    toggleAll(completed: boolean) {
-      this.updateState(
-        {
-          todos: this.state.todos.map(todo =>
-            todo.completed === completed ? todo : { ...todo, completed }
-          ),
-        },
-        'TOGGLE_ALL'
-      );
-    },
+      updateTodo(id: string, updates: Partial<Todo>) {
+        this.updateState(
+          {
+            todos: this.state.todos.map(todo =>
+              todo.id === id ? { ...todo, ...updates } : todo
+            ),
+          },
+          'UPDATE_TODO'
+        );
+      },
 
-    updateTodo(id: string, updates: Partial<Todo>) {
-      this.updateState(
-        {
-          todos: this.state.todos.map(todo =>
-            todo.id === id ? { ...todo, ...updates } : todo
-          ),
-        },
-        'UPDATE_TODO'
-      );
-    },
+      destroy(id: string) {
+        this.updateState(
+          {
+            todos: this.state.todos.filter(todo => todo.id !== id),
+          },
+          'DESTROY_TODO'
+        );
+      },
 
-    destroy(id: string) {
-      this.updateState(
-        {
-          todos: this.state.todos.filter(todo => todo.id !== id),
-        },
-        'DESTROY_TODO'
-      );
-    },
+      clearCompleted() {
+        this.updateState(
+          {
+            todos: this.state.todos.filter(todo => !todo.completed),
+          },
+          'CLEAR_COMPLETED'
+        );
+      },
+    }),
 
-    clearCompleted() {
-      this.updateState(
-        {
-          todos: this.state.todos.filter(todo => !todo.completed),
-        },
-        'CLEAR_COMPLETED'
-      );
-    },
-  }),
-
-  { deriveState }
-);
+    { deriveState }
+  );
 
 export default createTodoLib;

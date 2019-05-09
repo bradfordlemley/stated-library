@@ -1,3 +1,5 @@
+const process = require('process');
+
 function makeTests(createCounter, isRxJs = false) {
   let subs;
 
@@ -177,6 +179,19 @@ function makeTests(createCounter, isRxJs = false) {
     const stateHandler = jest.fn();
     subs.push(counterLib.stateEvent$.subscribe(eventHandler));
     subs.push(counterLib.state$.subscribe(stateHandler));
+  });
+
+  test('Increments with derived state', () => {
+    const deriveState = raw => ({
+      ...raw,
+      x10: raw.counter * 10,
+    });
+    const counterLib = createCounter(0, deriveState);
+    counterLib.increment();
+    expect(counterLib.state).toEqual({
+      counter: 1,
+      x10: 10,
+    });
   });
 }
 

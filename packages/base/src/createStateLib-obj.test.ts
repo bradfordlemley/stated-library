@@ -1,8 +1,8 @@
 import { createStatedLib } from '.';
 import makeTests from '../test/makeTests';
 
-const createCounter = (counter = 0) =>
-  createStatedLib<{ counter: number }>(
+const createCounter = (counter = 0, deriveState) =>
+  createStatedLib(
     { counter },
     {
       increment() {
@@ -18,7 +18,8 @@ const createCounter = (counter = 0) =>
         await new Promise(resolve => setTimeout(resolve, 10));
         this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
       },
-    }
+    },
+    { deriveState }
   );
 
 makeTests(createCounter);

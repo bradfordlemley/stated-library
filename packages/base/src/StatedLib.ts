@@ -6,10 +6,8 @@ import {
   StateEvent,
 } from '@stated-library/interface';
 
-type DeriveState<RawState, State> = (state: RawState) => State;
-
-type LibOpts<RawState, State> = {
-  deriveState?: DeriveState<RawState, State>;
+export type LibOpts<RawState, State> = {
+  deriveState?: (state: RawState) => State;
   createObs?: ObservableCtor<any>;
 };
 
@@ -38,7 +36,7 @@ function makeStateEvent(rawState, event, meta, opts) {
   return stateData;
 }
 
-function bindMethodsFromProto(obj) {
+export function bindMethodsFromProto(obj) {
   const proto = Object.getPrototypeOf(obj);
   const descriptors = Object.getOwnPropertyDescriptors(proto);
   for (const key of Object.keys(descriptors)) {
@@ -101,39 +99,6 @@ class StatedLibBase<RawState, State = RawState, Meta = {}>
   resetState(rawState: RawState, event: string, meta?: Meta) {
     this.setState(rawState, event, meta);
   }
-}
-
-type GetMethods<Methods> = (base: any) => Methods;
-
-export function createStatedLib<
-  RawState,
-  Methods = {},
-  State = RawState,
-  Meta = {}
->(
-  initialState: RawState,
-  methodsOrGetMethods: Methods | GetMethods<Methods>,
-  opts?
-): StatedLibraryInterface<RawState, State, Meta> & Methods {
-  const base = new StatedLibBase(initialState, opts);
-  bindMethodsFromProto(base);
-
-  const methods =
-    typeof methodsOrGetMethods === 'function'
-      ? methodsOrGetMethods(base)
-      : methodsOrGetMethods;
-
-  const obj = {
-    get state() {
-      return this.stateEvent$.value.state;
-    },
-  };
-  Object.assign(obj, base, methods);
-
-  Object.keys(methods).forEach(method => (obj[method] = obj[method].bind(obj)));
-
-  // @ts-ignore
-  return obj;
 }
 
 export default StatedLibBase;

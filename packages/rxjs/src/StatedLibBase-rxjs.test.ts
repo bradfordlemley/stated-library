@@ -4,8 +4,8 @@ import makeTests from '../../base/test/makeTests';
 
 class Counter extends StatedLibRxJs<{ counter: number }> {
   notAFunction;
-  constructor(counter: number = 0) {
-    super({ counter });
+  constructor(counter: number = 0, deriveState?) {
+    super({ counter }, { deriveState });
     this.notAFunction = 1;
     StatedLibRxJs.bindMethods(this);
   }
@@ -24,4 +24,4 @@ class Counter extends StatedLibRxJs<{ counter: number }> {
   }
 }
 
-makeTests(initial => new Counter(initial), true);
+makeTests((initial, deriveState) => new Counter(initial, deriveState), true);

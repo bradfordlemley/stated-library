@@ -3,8 +3,8 @@ import makeTests from '../test/makeTests';
 
 class Counter extends StatedLibBase<{ counter: number }> {
   notAFunction;
-  constructor(counter: number = 0) {
-    super({ counter });
+  constructor(counter: number = 0, deriveState?) {
+    super({ counter }, { deriveState });
     this.notAFunction = 1;
     StatedLibBase.bindMethods(this);
   }
@@ -23,4 +23,6 @@ class Counter extends StatedLibBase<{ counter: number }> {
   }
 }
 
-makeTests(initialValue => new Counter(initialValue));
+makeTests(
+  (initialValue, deriveState) => new Counter(initialValue, deriveState)
+);

@@ -1,22 +1,26 @@
 import { createStatedLib } from '.';
 import makeTests from '../test/makeTests';
 
-const createCounter = (counter = 0) =>
-  createStatedLib<{ counter: number }>({ counter }, ({ updateState }) => ({
-    increment() {
-      updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
-    },
-    set(counter) {
-      updateState({ counter }, 'SET');
-    },
-    decrement() {
-      updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
-    },
-    async aincrement() {
-      await new Promise(resolve => setTimeout(resolve, 10));
-      updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
-    },
-  }));
+const createCounter = (counter = 0, deriveState) =>
+  createStatedLib(
+    { counter },
+    ({ updateState }) => ({
+      increment() {
+        updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+      },
+      decrement() {
+        updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
+      },
+      set(counter) {
+        updateState({ counter }, 'SET');
+      },
+      async aincrement() {
+        await new Promise(resolve => setTimeout(resolve, 10));
+        updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+      },
+    }),
+    { deriveState }
+  );
 
 makeTests(createCounter);
 
