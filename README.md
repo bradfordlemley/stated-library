@@ -114,7 +114,8 @@ All `Stated Libraries` implement the [`StatedLibraryInterface`](#stated-library-
 The easiest way to create a `Stated Library` is to use a base implementation from @stated-library/base.  You can also create a `Stated Library` from scratch or create your own base implementation.  It doesn't matter how you create a `Stated Library` -- as long as it implements the `StatedLibraryInterface`, it will be interoperable with other `Stated Libraries` and work with standard `Stated Library` tooling.
 
 ## Todo Example
-This example creates a simple `Todo` library using [`createStatedLib`](#createStatedLib) from @stated-library/base.
+This example creates a simple `Todo` library using [`StatedLibBase`](#statedlibbase) from @stated-library/base.
+(See [`createStatedLib`](#createStatedLib) for a more functional object construction method.)
 
 `addTodo`, `toggleTodo`, and `fetchTodos` are the library's "input" methods.  `fetchTodos` is asynchrononus, demonstrating how async functionality can just be implemented _normally_.
 
@@ -122,39 +123,41 @@ This example creates a simple `Todo` library using [`createStatedLib`](#createSt
 
 ```js
 // TodoLib.js
-import { createStatedLib } from '@stated-library/base';
+import { StatedLibBase } from '@stated-library/base';
 import createTodo from './createTodo';
 import fetchTodosFromCloud from './fetchTodosFromCloud';
 
-const createTodoLib = () => createStatedLib(
-  // initial state
-  { todos: [] },
-  // "input" methods
-  {
-    addTodo(title) {
-      this.updateState({
-        todos: this.state.todos.concat([ createTodo(title) ])
-      }, "ADD_TODO");
-    },
-    
-    toggleTodo(id) {
-      this.updateState({
-        todos: this.state.todos.map(todo =>
-          todo.id === id ? { ...todo, completed: !todo.completed } : todo
-        ),
-      }), "TOGGLE_TODO");
-    },
-    
-    async fetchTodos() {
-      this.updateState({isFetching: true}, "FETCH_TODOS_START");
-      const newTodos = await fetchTodosFromCloud();
-      this.updateState({
-        todos: this.state.todos.concat(newTodos),
-        isFetching: false,
-      }, "FETCH_TODOS_COMPLETE");
-    }
+class TodoLib extends StatedLibBase {
+  constructor() {
+    super({ todos: [] });
+    StatedLibBase.bindMethods(this);
   }
-);
+
+  addTodo(title) {
+    this.updateState({
+      todos: this.state.todos.concat([ createTodo(title) ])
+    }, "ADD_TODO");
+  }
+    
+  toggleTodo(id) {
+    this.updateState({
+      todos: this.state.todos.map(todo =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      ),
+    }), "TOGGLE_TODO");
+  }
+  
+  async fetchTodos() {
+    this.updateState({isFetching: true}, "FETCH_TODOS_START");
+    const newTodos = await fetchTodosFromCloud();
+    this.updateState({
+      todos: this.state.todos.concat(newTodos),
+      isFetching: false,
+    }, "FETCH_TODOS_COMPLETE");
+  }
+};
+
+const createTodoLib = () => new TodoLib();
 
 export default createTodoLib;
 ```
@@ -773,10 +776,10 @@ const createCounter = () => createStatedLib(
   { counter },
   ({ updateState }) => ({
     increment() {
-      updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+      updateState(state => ({ counter: state.counter + 1 }), 'INCREMENT');
     },
     decrement() {
-      updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
+      updateState(state => ({ counter: state.counter - 1 }), 'DECREMENT');
     },
   }),
   { deriveState }
