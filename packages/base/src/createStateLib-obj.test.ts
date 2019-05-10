@@ -24,9 +24,14 @@ const createCounter = (counter = 0, deriveState) =>
 
 makeTests(createCounter);
 
-// test(`bindMethods skips non-function properties`, () => {
-//   function Thing() {}
-//   Thing.prototype.name = 'defaultThing';
-//   const thing = new Thing();
-//   StatedLibBase.bindMethods(thing);
-// });
+test(`Handles non-function properties`, () => {
+  createStatedLib(
+    { counter: 1 },
+    {
+      name: 'name',
+      increment() {
+        this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+      },
+    }
+  );
+});

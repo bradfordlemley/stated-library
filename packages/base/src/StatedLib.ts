@@ -58,7 +58,7 @@ class StatedLibBase<RawState, State = RawState, Meta = {}>
   state$: StatedLibraryObservable<State>;
 
   constructor(initialState: RawState, opts?: LibOpts<RawState, State>) {
-    this.opts = opts || {};
+    this.opts = Object.assign({}, opts);
     const createObs = this.opts.createObs || createObservable;
     const initialEvent = makeStateEvent(initialState, 'INIT', undefined, opts);
     this.stateEvent$ = createObs(initialEvent);
