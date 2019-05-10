@@ -6,17 +6,17 @@ const createCounter = (counter = 0, deriveState) =>
     { counter },
     ({ updateState }) => ({
       increment() {
-        updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
-      },
-      decrement() {
-        updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
+        updateState(state => ({ counter: state.counter + 1 }), 'INCREMENT');
       },
       set(counter) {
         updateState({ counter }, 'SET');
       },
+      decrement() {
+        updateState(state => ({ counter: state.counter - 1 }), 'DECREMENT');
+      },
       async aincrement() {
         await new Promise(resolve => setTimeout(resolve, 10));
-        updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+        updateState(state => ({ counter: state.counter + 1 }), 'INCREMENT');
       },
     }),
     { deriveState }

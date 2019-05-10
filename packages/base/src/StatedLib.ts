@@ -11,6 +11,8 @@ export type LibOpts<RawState, State> = {
   createObs?: ObservableCtor<any>;
 };
 
+export type GetUpdates<State, RawState> = (state: State) => Partial<RawState>;
+
 // Minimal Observable
 interface Observable<Value> extends StatedLibraryObservable<Value> {
   next: (value: Value) => void;
@@ -87,7 +89,15 @@ class StatedLibBase<RawState, State = RawState, Meta = {}>
     );
   }
 
-  updateState(updates: Partial<RawState>, event: string, meta?: Meta) {
+  updateState(
+    updatesOrGetUpdates: Partial<RawState> | GetUpdates<State, RawState>,
+    event: string,
+    meta?: Meta
+  ) {
+    const updates =
+      typeof updatesOrGetUpdates === 'function'
+        ? updatesOrGetUpdates(this.state)
+        : updatesOrGetUpdates;
     const rawState = Object.assign(
       {},
       this.stateEvent$.value.rawState,

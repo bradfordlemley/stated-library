@@ -1,4 +1,4 @@
-import StatedLibBase, { createStatedLib } from '@stated-library/base';
+import { createStatedLib } from '@stated-library/base';
 import { createSelector } from 'reselect';
 // @ts-ignore: cuid has no default export
 import cuid from 'cuid';
@@ -34,7 +34,7 @@ const getCompletedTodos = createSelector<RawState, Todo[], Todo[]>(
   todos => todos.filter(todo => todo.completed)
 );
 
-const deriveState = (state: RawState): State => {
+function deriveState(state: RawState): State {
   return {
     ...state,
     get activeTodos() {
@@ -44,144 +44,72 @@ const deriveState = (state: RawState): State => {
       return getCompletedTodos(state);
     },
   };
-};
+}
 
 const DEFAULT_STATE: RawState = {
   todos: [],
 };
 
-export class TodoLib extends StatedLibBase<RawState, State> {
-  constructor(state?: Partial<RawState>) {
-    super(
-      {
-        ...DEFAULT_STATE,
-        ...state,
-      },
-      { deriveState }
-    );
-  }
-
-  addTodo(text: string) {
-    this.updateState(
-      {
-        todos: this.state.todos.concat(makeTodo(text)),
-      },
-      'ADDTODO'
-    );
-  }
-
-  toggle(id: string) {
-    this.updateState(
-      {
-        todos: this.state.todos.map(todo =>
-          todo.id === id ? { ...todo, completed: !todo.completed } : todo
-        ),
-      },
-      'TOGGLE_TODO'
-    );
-  }
-
-  toggleAll(completed: boolean) {
-    this.updateState(
-      {
-        todos: this.state.todos.map(todo =>
-          todo.completed === completed ? todo : { ...todo, completed }
-        ),
-      },
-      'TOGGLE_ALL'
-    );
-  }
-
-  updateTodo(id: string, updates: Partial<Todo>) {
-    this.updateState(
-      {
-        todos: this.state.todos.map(todo =>
-          todo.id === id ? { ...todo, ...updates } : todo
-        ),
-      },
-      'UPDATE_TODO'
-    );
-  }
-
-  destroy(id: string) {
-    this.updateState(
-      {
-        todos: this.state.todos.filter(todo => todo.id !== id),
-      },
-      'DESTROY_TODO'
-    );
-  }
-
-  clearCompleted() {
-    this.updateState(
-      {
-        todos: this.state.todos.filter(todo => !todo.completed),
-      },
-      'CLEAR_COMPLETED'
-    );
-  }
-}
-
-const createTodoLib = (initial?) =>
+const createTodoLib = () =>
   createStatedLib(
-    initial || DEFAULT_STATE,
+    DEFAULT_STATE,
     ({ updateState }) => ({
       addTodo(text: string) {
         updateState(
-          {
-            todos: this.state.todos.concat(makeTodo(text)),
-          },
+          state => ({
+            todos: state.todos.concat(makeTodo(text)),
+          }),
           'ADDTODO'
         );
       },
 
       toggle(id: string) {
         updateState(
-          {
-            todos: this.state.todos.map(todo =>
+          state => ({
+            todos: state.todos.map(todo =>
               todo.id === id ? { ...todo, completed: !todo.completed } : todo
             ),
-          },
+          }),
           'TOGGLE_TODO'
         );
       },
 
       toggleAll(completed: boolean) {
-        this.updateState(
-          {
-            todos: this.state.todos.map(todo =>
+        updateState(
+          state => ({
+            todos: state.todos.map(todo =>
               todo.completed === completed ? todo : { ...todo, completed }
             ),
-          },
+          }),
           'TOGGLE_ALL'
         );
       },
 
       updateTodo(id: string, updates: Partial<Todo>) {
-        this.updateState(
-          {
-            todos: this.state.todos.map(todo =>
+        updateState(
+          state => ({
+            todos: state.todos.map(todo =>
               todo.id === id ? { ...todo, ...updates } : todo
             ),
-          },
+          }),
           'UPDATE_TODO'
         );
       },
 
       destroy(id: string) {
-        this.updateState(
-          {
-            todos: this.state.todos.filter(todo => todo.id !== id),
-          },
+        updateState(
+          state => ({
+            todos: state.todos.filter(todo => todo.id !== id),
+          }),
           'DESTROY_TODO'
         );
       },
 
       clearCompleted() {
-        this.updateState(
-          {
-            todos: this.state.todos.filter(todo => !todo.completed),
-          },
+        updateState(
+          state => ({
+            todos: state.todos.filter(todo => !todo.completed),
+          }),
           'CLEAR_COMPLETED'
         );
       },

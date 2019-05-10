@@ -1,25 +1,23 @@
-import createTodoLib, { makeTodo } from './TodoLib';
+import createTodoLib from './TodoLib';
 
-let todolib = null;
+let todoLib = null;
 
 beforeEach(() => {
-  todolib = createTodoLib({
-    todos: [makeTodo('first'), makeTodo('second')],
-  });
+  todoLib = createTodoLib();
 });
 
 test('Adds todo', () => {
-  expect(todolib.state.todos).toHaveLength(2);
-  todolib.addTodo('Third one');
-  expect(todolib.state.todos).toHaveLength(3);
+  todoLib.addTodo('First');
+  expect(todoLib.state.todos).toHaveLength(1);
+  expect(todoLib.state.completedTodos).toHaveLength(0);
+  expect(todoLib.state.activeTodos).toHaveLength(1);
 });
 
 test('Toggles todo', () => {
-  const { todos } = todolib.state;
-  expect(todolib.state.completedTodos).toHaveLength(0);
-  expect(todolib.state.activeTodos).toHaveLength(2);
-  todolib.toggle(todos[0].id);
-  expect(todolib.state.todos[0].completed).toBe(true);
-  expect(todolib.state.completedTodos).toHaveLength(1);
-  expect(todolib.state.activeTodos).toHaveLength(1);
+  todoLib.addTodo('First');
+  todoLib.toggle(todoLib.state.todos[0].id);
+  expect(todoLib.state.todos).toHaveLength(1);
+  expect(todoLib.state.completedTodos).toHaveLength(1);
+  expect(todoLib.state.activeTodos).toHaveLength(0);
+  expect(todoLib.state.todos[0].completed).toBe(true);
 });

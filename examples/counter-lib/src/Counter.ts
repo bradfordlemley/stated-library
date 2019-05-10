@@ -3,7 +3,7 @@ import { createStatedLib } from '@stated-library/base';
 export const createCounter = (counter = 0) =>
   createStatedLib({ counter }, ({ updateState }) => ({
     increment() {
-      updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+      updateState(state => ({ counter: state.counter + 1 }), 'INCREMENT');
     },
     set(counter) {
       updateState({ counter }, 'SET');

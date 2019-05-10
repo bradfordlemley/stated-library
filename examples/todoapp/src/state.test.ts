@@ -1,12 +1,10 @@
 
 import {getValue} from '@stated-library/core';
-import { locStorage } from "@stated-library/core";
 
 import * as s from './state';
 
 let state: typeof s;
 beforeEach(() => {
-  locStorage.clear();
   jest.resetModules();
   state = require('./state');
 });
