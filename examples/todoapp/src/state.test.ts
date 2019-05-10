@@ -1,12 +1,15 @@
 
 import {getValue} from '@stated-library/core';
+
 import * as s from './state';
 
 let state: typeof s;
 beforeEach(() => {
   jest.resetModules();
   state = require('./state');
-})
+});
+
+afterEach(() => state.locStorage.clear())
 
 test('visibleTodos$ contains todos filtered thru visibilityFilter', () => {
   const { todoLib, filterLib, visibleTodos$, visibility$ } = state;

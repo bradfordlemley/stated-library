@@ -1,21 +1,23 @@
-import TodoLib, { makeTodo } from './TodoLib';
+import createTodoLib from './TodoLib';
 
-let todolib = null;
+let todoLib = null;
 
 beforeEach(() => {
-  todolib = new TodoLib({
-    todos: [makeTodo('first'), makeTodo('second')],
-  });
+  todoLib = createTodoLib();
 });
 
 test('Adds todo', () => {
-  expect(todolib.state.todos).toHaveLength(2);
-  todolib.addTodo('Third one');
-  expect(todolib.state.todos).toHaveLength(3);
+  todoLib.addTodo('First');
+  expect(todoLib.state.todos).toHaveLength(1);
+  expect(todoLib.state.completedTodos).toHaveLength(0);
+  expect(todoLib.state.activeTodos).toHaveLength(1);
 });
 
 test('Toggles todo', () => {
-  const { todos } = todolib.state;
-  todolib.toggle(todos[0].id);
-  expect(todolib.state.todos[0].completed).toBe(true);
+  todoLib.addTodo('First');
+  todoLib.toggle(todoLib.state.todos[0].id);
+  expect(todoLib.state.todos).toHaveLength(1);
+  expect(todoLib.state.completedTodos).toHaveLength(1);
+  expect(todoLib.state.activeTodos).toHaveLength(0);
+  expect(todoLib.state.todos[0].completed).toBe(true);
 });

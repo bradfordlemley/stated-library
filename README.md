@@ -1,7 +1,7 @@
-# Stated Libraries
+# :dart: Stated Libraries
 **Simple, Clean, Powerful State Management**
 
-[![License][license-badge]][license] [![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage]
+ [![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage] ![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg) [![License][license-badge]][license]
 
 [build]: https://dev.azure.com/bradfordlemley/stated-library/_build/latest?definitionId=1&branchName=master
 
@@ -17,134 +17,159 @@
 
 [license]: https://github.com/bradfordlemley/stated-library/blob/master/LICENSE
 
-**`Stated Libraries`** are essentially an alternative to **`Redux`** and **`MobX`**.
 
-**`Stated Libraries`** support **efficient and productive development** -- they are **fast to develop _and_ test** and **completely modular**.
+**`Stated Libraries`** are **independent modules** that are **fast to develop** :rocket:, **easy to test** :trophy:, and **easy to integrate** :package:.
 
-### Ode to Redux
-Almost everything in `Stated Libraries` is informed by, borrowed from, or outright stolen from `Redux`.  While many of the concepts used in `Redux` are brilliant, I personally find developing with `Redux` to be slow and painful, mainly due to: the boilerplate (action/reducer/etc for every little thing), the inability to implement complex functionality easily, the strange dependencies on external middleware, the inability to create self-contained modules, the coupling of everything into a single state, and the effort required to test all of the above.
-
-## Table of Contents
+...those features help support **efficient development workflows**: **building _high-quality_ software _faster_** :dart:.
 
 <details>
 <summary><span style="font-weight: regular">Table of Contents</span></summary>
 
-* [Overview](#overview)
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-* [Getting Started](#getting-started)
-  * [Implementing a Stated Library](#implementing)
-  * [Testing a Stated Library](#testing)
-  * [Using a Stated Library in React](#react)
-  * [Summary](#summary)
-* [Multiple Stated Libraries](#multiple-stated-libraries)
-* [Composing State](#composing-state)
-  * [Redux-like Global Store](#redux-like-global-store)
-  * [Testing Composed State](#testing-composed-state)
-* [Tooling](#tooling)
-  * [Time travel Debugging](#redux-devtools)
-  * [Hydrate from Local Storage](#hydrate-from-local-storage)
-  * [SSR](#ssr)
-* [Derived State](#derived-state)
-  * [Memoization](#memoization)
-  * [Summary](#summary)
-* [Library-to-Library Interactions](#library-to-library-interactions)
-  * [Generic Interactions](#generic-interactions)
-  * [Interactions with Reactive Programming](#interactions-with-reactive-programming)
-  * [Internal Reactive Programming](#internal-reactive-programming)
-* [Full Example Todo App](#full-example-todo-app)
-* [Stated Libraries for Local State](#stated-libraries-for-local-state)
-* [Stated Libraries for any state](#stated-libraries-for-any-state)
-* [Ode to Redux](#ode-to-redux)
-* [Packages](#packages)
-* [Api](#api)
-  * [Stated Library Interface](#interface)
-  * [StatedLibrary Base Class](#stated-library-base-class)
-  * [Core](#core)
-    * [createObservable](#createobservable)
-    * [mapState](#mapstate)
-    * [getValue](#getvalue)
-  * [React](#react-bindings)
-    * [HOC](#connect)
-    * [Direct Injection](#direct-injection)
+
+  - [Overview](#overview)
+  - [Introduction](#introduction)
+  - [Todo Example](#todo-example)
+    - [Testing](#testing)
+    - [React](#react)
+    - [Summary](#summary)
+- [Derived State](#derived-state)
+    - [Testing Derived State](#testing-derived-state)
+    - [Memoization](#memoization)
+- [Multiple Stated Libraries](#multiple-stated-libraries)
+- [State Composition](#state-composition)
+    - [`mapState` vs `mapStateToProps`](#mapstate-vs-mapstatetoprops)
+    - [Testing Composed State](#testing-composed-state)
+- [Tooling](#tooling)
+  - [Redux DevTools](#redux-devtools)
+  - [Hydrate from Local Storage](#hydrate-from-local-storage)
+  - [SSR](#ssr)
+- [Full Example Todo App](#full-example-todo-app)
+- [Library-to-Library Interactions](#library-to-library-interactions)
+    - [Generic Interactions](#generic-interactions)
+    - [Interactions with Reactive Programming](#interactions-with-reactive-programming)
+      - [Internal Reactive Programming](#internal-reactive-programming)
+- [Stated Libraries for Local State](#stated-libraries-for-local-state)
+- [Stated Libraries for any state](#stated-libraries-for-any-state)
+- [Packages](#packages)
+- [API](#api)
+  - [Interface](#interface)
+  - [Core](#core)
+    - [createObservable](#createobservable)
+    - [mapState](#mapstate)
+    - [getValue](#getvalue)
+    - [devTools](#devtools)
+    - [locState](#locstate)
+  - [Base](#base)
+    - [createStatedLib](#createstatedlib)
+    - [StatedLibBase](#statedlibbase)
+  - [React Bindings](#react-bindings)
+    - [connect](#connect)
+    - [Direct Injection](#direct-injection)
+    - [use](#use)
+    - [link](#link)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 </details>
 
 ## Overview
 
-**`Stated Libraries`** are **regular javascript objects** that support **unidirectional data flow** where: the inputs are object _methods_, and the output is `state$`.
+:white_check_mark: **Powerful**: **`Stated Libraries`** are **regular javascript objects**.  There are **no limitations** on functionality -- if you can do it in javascript, you can do it.
 
-The `state$` output is an **observable**, which is an ideal construct for `state` because:
+:white_check_mark: **Modular**:  **`Stated Libraries`** are **completely self-contained, modular entities**.
 
-* Observables have a **built-in change notifier service** -- very useful for anything that might be interested in the library's `state`; for example, view frameworks like `React`.
+:white_check_mark: **Testable**:  **`Stated Libraries`** are **fully and completely testable**...independently, all by themselves.
 
-* Observables are **composable** -- take an observable in, operate on it, transform it, combine it with another observable, whatever...output: another observable.  
+:white_check_mark: **Unidirectional**: **`Stated Libraries`** implement **unidirectional data flow**; the _inputs_ are library-specific methods, and the _output_ is `state`.
 
-**`Stated Libraries`** can do anything normal javascript can do -- perform **async operations**, cause **side effects**, etc.  No limitations.
+:white_check_mark: **Observable**: **`Stated Libraries`** output, `state$`, is an observable, which is an ideal construct for `state` because:
+- Observables have a **built-in change notifier service** -- very useful for anything interested in the library's `state`; for example, view frameworks like `React`.
+- Observables are **composable** -- this allows `state` to be easily manipulated, transformed, combined, etc.  Among other things, this allows `Stated Libraries` to be easily integrated.
 
-**`Stated Libraries`** are **framework-agnostic**.
+:white_check_mark: **Reactive**: **`Stated Libraries`** observable `state$` brings along the power of **reactive programming**...but, you don't have to be a reactive programmer to use it.
 
-**`Stated Libraries`** are **completely modular, self-contained entities**.
+:white_check_mark: **Framework-agnostic**: **`Stated Libraries`** are completely **framework-agnostic**.  **_All_** `state` logic, including integration/combinational/business logic, is also framework-agnostic.  This means that all application `state` logic is portable and is easily testable outside of any application framework.
 
-**`Stated Libraries`** support **time-travel debugging**, **state hydration**, and other tooling around `state`.
+:white_check_mark: **Toolable**: **`Stated Libraries`** support **time-travel debugging**, **state hydration**, and other tooling around `state`.
 
-All of this makes `Stated Libraries` **super powerful** yet **easy to learn**, and **fast to develop _and_ test**...and that means **productive development**.
+:dizzy: All of this makes `Stated Libraries` **super powerful**, yet **easy to learn**, **fast to develop _and_ test**, and **easy to integrate _and_ test**.
 
-## Getting Started
+## Introduction
 
-The only requirement for a `Stated Library` is that it implements the [`Stated Library Interface`](#stated-library-interface).  The inteface isn't too difficult to implement from sratch, but the easiest way to create a `Stated Library` is to start with a base implementation like the [`StatedLibrary`](#stated-lib-base) base class.
+All `Stated Libraries` implement the [`StatedLibraryInterface`](#stated-library-interface) which forms the basis of an object that manages `state`:
 
-### Implementing
-This example shows how to create a simple `Todo` `Stated Library`:
+```jsx
+// Stated Library Interface
+{
+  state,       // current state
+  state$,      // state observable: emits state each time state changes
+  stateEvent$, // event observable: emits event for each state-related event
+  resetState,  // back door for tooling to set state
+}
+```
+`Stated Libraries` **_extend_** this interface by adding **library-specific methods** that serve as inputs which drive **changes to `state`**.
+
+The easiest way to create a `Stated Library` is to use a base implementation from @stated-library/base.  You can also create a `Stated Library` from scratch or create your own base implementation.  It doesn't matter how you create a `Stated Library` -- as long as it implements the `StatedLibraryInterface`, it will be interoperable with other `Stated Libraries` and work with standard `Stated Library` tooling.
+
+## Todo Example
+This example creates a simple `Todo` library using [`createStatedLib`](#createStatedLib) from @stated-library/base.
+
+`addTodo`, `toggleTodo`, and `fetchTodos` are the library's "input" methods.  `fetchTodos` is asynchrononus, demonstrating how async functionality can just be implemented _normally_.
+
+* `npm install @stated-library/base`
 
 ```js
 // TodoLib.js
-import StatedLibBase from '@stated-library/base';
+import { createStatedLib } from '@stated-library/base';
 import createTodo from './createTodo';
+import fetchTodosFromCloud from './fetchTodosFromCloud';
 
-export default class TodoLib extends StatedLibBase {
-  
-  constructor(){
-    super({todos: []});
-    StatedLibBase.bindMethods(this);
+const createTodoLib = () => createStatedLib(
+  // initial state
+  { todos: [] },
+  // "input" methods
+  {
+    addTodo(title) {
+      this.updateState({
+        todos: this.state.todos.concat([ createTodo(title) ])
+      }, "ADD_TODO");
+    },
+    
+    toggleTodo(id) {
+      this.updateState({
+        todos: this.state.todos.map(todo =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        ),
+      }), "TOGGLE_TODO");
+    },
+    
+    async fetchTodos() {
+      this.updateState({isFetching: true}, "FETCH_TODOS_START");
+      const newTodos = await fetchTodosFromCloud();
+      this.updateState({
+        todos: this.state.todos.concat(newTodos),
+        isFetching: false,
+      }, "FETCH_TODOS_COMPLETE");
+    }
   }
-  
-  addTodo(title) {
-    this.updateState({
-      todos: state.todos.concat([ createTodo(title) ])
-    }, "ADD_TODO");
-  }
-  
-  toggleTodo(id) {
-    this.updateState({
-      todos: state.todos.map(todo =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      ),
-    }, "TOGGLE_TODO");
-  }
+);
 
-  async fetchTodos() {
-    this.updateState({isFetching: true}, "FETCH_TODOS_START");
-    const newTodos = await fetchTodosFromCloud();
-    this.updateState({
-      todos: state.todos.concat(newTodos),
-      isFetching: false,
-    }, "FETCH_TODOS_COMPLETE");
-  }
-});
+export default createTodoLib;
 ```
 
-The `Todo` library is a regular javascript object.  The `addTodo`, `toggleTodo`, and `fetchTodos` methods update the library's `state` by calling the base class's `updateState` method.  The `fetchTodos` method demonstrates how async functionality can be implemented normally.
-
 ### Testing
-An efficient development workflow requires efficient test development.  One of the best features of `Stated Libraries` is that they are **completely self-contained**, and that makes them **easy to test**.  
-
-Here's how the `Todo` library could be tested:
+An efficient development workflow demands efficient test development.  One of the best features of `Stated Libraries` is that they are **completely self-contained** -- and that makes them **easy to test**.  Tests typically invoke library "input" methods, and then verify `state`.
 
 ```js
 // TodoLib.test.js
-import TodoLib from './TodoLib';
+import createTodoLib from './TodoLib';
+let todoLib;
+
+beforeEach(() => todoLib = createTodoLib());
 
 expect("Adds a todo", () => {
-  const todoLib = new TodoLib();
   todoLib.addTodo('my first todo');
   expect(todoLib.state.todos[0]).toEqual({
     id: todoLib.state.todos[0].id,
@@ -154,7 +179,6 @@ expect("Adds a todo", () => {
 });
 
 expect("Toggles a todo", () => {
-  const todoLib = new TodoLib();
   todoLib.addTodo('my first todo');
   todoLib.toggleTodo(todoLib.state.todos[0].id);
   expect(todoLib.state.todos[0]).toEqual({
@@ -165,7 +189,6 @@ expect("Toggles a todo", () => {
 });
 
 expect("Fetches todos from cloud", async () => {
-  const todoLib = new TodoLib();
   const fecthPromise = todoLib.fetchTodos();
   expect(todoLib.state.isFetching).toBe(true);
   await fetchPromise;
@@ -175,23 +198,28 @@ expect("Fetches todos from cloud", async () => {
 ```
 
 ### React
-`Stated Libraries` are platform-agnostic and can be used in `React` without any modifications.  `React` components can use any `Stated Library` via generic `React` bindings.
+React components access `Stated Libraries` via generic React bindings.  This example shows how an app could use the `Todo` library via the [`connect`](#connect) binding.  The example also uses [`mapState`](#mapstate) to reshape the `Todo` library's `state$` into `appState$` -- a glimpse into state composition.
 
-Here's how the `Todo` library could be used in a `React` app using the [`connect`](#connect) binding:
 ```jsx
 // App.js
+import { mapState } from '@stated-library/core';
 import { connect } from '@stated-library/react';
-import TodoLib from './TodoLib';
+import createTodoLib from './TodoLib';
 
-const todoLib = new TodoLib();
+const todoLib = createTodoLib();
 
-const App = ({todos, addTodo}) => {
+const appState$ = mapState(todoLib.state$, todoLibState => ({
+  addTodo: todoLibState.addTodo,
+  visibleTodos: todoLibState.todos,
+}));
+
+const App = ({visibleTodos, addTodo}) => {
   return (
     <div>
       <button onClick={() => addTodo("New todo")}>
         Add todo
       </button>
-      {todos.map(todo => (
+      {visibleTodos.map(todo => (
         <div key={todo.id}>
           {todo.title} is completed: ${todo.completed}
         </div>
@@ -200,211 +228,65 @@ const App = ({todos, addTodo}) => {
   );
 };
 
-export default connect(todoLib.state$)(App);
+export default connect(appState$)(App);
 ```
 
 ### Summary
-The examples above demonstrate how easy it is to **develop and test** a `Stated Library`, and use it in a `React` app...but, that's only the tip of the iceberg...
-
-
-## Multiple Stated Libraries
-A typical application would create global `Stated Library` instances together, e.g. in a `state.js` module, analogous to where a global `Redux` store would be created.
-
-`state.js` would typically export library instances to be used throughout the application.  `state.js` can also be used as a library integration layer or business logic layer, which will be discussed later.
-
-Here's an example `state.js`:
-
-```jsx
-// state.js
-import TodoLib from './TodoLib';
-import VisibilityLib from './VisibilityLib';
-const todoLib = new TodoLib();
-const visLib = new VisibilityLib();
-
-export {todoLib, visLib};
-```
-
-## Composing State
-
-**State composition** is the special sauce of `Stated Libraries`.  State composition allows library `state$` to be transformed and/or combined with other `state$`, enabling multiple independent `Stated Libraries` to be used together easily.
-
-The [`mapState`](#mapstate) function is the `state$` composer.  It takes one or more `state$` in, and creates another `state$`.  The resulting `state$` can be used as an input to another `mapState`...hence composability.
-
-Here's a simple example of `mapState` transforming `state$`:
-
-```jsx
-// transform `todos` into `items`
-const appState$ = mapState(todoLib.state$, state => ({
-  items: state.todos,
-  addTodo: state.addTodo,
-}));
-```
-
-Here's an example of `mapState` combining `state$` from multiple libraries.  In this case, the `Todo` library and `Visibility` library in `state.js` are used together to make `appData$` that contains only "visible" todos:
-
-```jsx
-// state.js
-// ...
-const appData$ = mapState(
-  [todoLib.state$, visLib.state$],
-  ([todoLibState, visLibState]) => ({
-    todos: visLibState.visibility === 'all'
-      ? todoLibState.todos
-      : todoLibState.todos.filter(todo => !todo.completed)
-    addTodo: state.addTodo,
-  }));
-// ...
-export {todoLib, visLib, appData$};
-```
-
-This example creates an equivalent `appData$`, but utilizes an intermediate `visibleTodos$`:
-
-```jsx
-// state.js
-// ...
-const visibleTodos$ = mapState(
-  [todoLib.state$, visLib.state$],
-  ([todoLibState, visLibState]) =>
-    visLibState.visibility === 'all'
-      ? todoLibState.todos
-      : todoLibState.todos.filter(todo => !todo.completed)
-  );
-
-const appData$ = mapState(
-  [todoLib.state$, visibleTodos$],
-  ([todoLibState, visibleTodos]) => ({
-    todos: visibleTodos,
-    addTodo: state.addTodo,
-  }));
-
-export {todoLib, visLib, appData$, visibleTodos$};
-```
-
-### Redux-like Global Store
-Another way to utilize composed state is to create a `Redux`-like store combining all libraries into a single `state$`.
-
-```jsx
-// state.js
-// ...
-const state$ = mapState(
-  [todoLib.state$, visLib.state$],
-  ([todoLibState, visLibState]) => ({
-    todoLibState,
-    visLibState,
-  }));
-
-const visibleTodos$ = mapState(
-  $state,
-  ({todoLibState, visLibState}) =>
-    visLibState.visibility === 'all'
-      ? todoLibState.todos
-      : todoLibState.todos.filter(todo => !todo.completed)
-);
-
-const appData$ = mapState(
-  [todoLib.state$, visibleTodos$],
-  ([todoLibState, visibleTodos]) => ({
-    todos: visibleTodos,
-    addTodo: state.addTodo,
-  }));
-
-export {todoLib, visLib, appData$, state$, visibleTodos$};
-```
-
-### `mapState` vs `mapStateToProps`
-`mapState` is similar to `react-redux`'s `mapStateToProps` + `mapDispatch` functionality.  The big differences are that the mapping takes place externally to the `React` binding, that "methods" are included with `state`, and that the "mapped state" is composable.
-
-These are significant differences because they allow much more flexibility and abstraction, and they allow the application logic to be completely independent of the application framework; and, most importantly, it allows thorough testing of application logic outside of any application framework.
-
-### Testing Composed State
-Testing is important at every level.  All of the functionality implemented above can be easily tested:
-```js
-//...
-test('visibleTodos$ contains todos filtered thru visibilityFilter', () => {
-  todoLib.addTodo("First");
-  todoLib.addTodo("Second");
-
-  expect(getValue(visibleTodos$)).toHaveLength(2);
-
-  visLib.setVisibility("active");
-  expect(getValue(visibleTodos$)).toHaveLength(2);
-
-  todoLib.toggle(todoLib.state.todos[0].id);
-  expect(getValue(visibleTodos$)).toHaveLength(1);
-
-});
-``` 
-
-# Tooling
-The [`Stated Library Interface`](#stated-library-interface) supports generic external tooling because external tools can subscribe to a library's `state$` or `stateEvent$` to monitor `state`, and set a library's `state` using `resetState`.  That's all the functionality that is needed for a lot of external tooling like DevTools, state hydrators (local or SSR), analytics, etc.
-
-## Redux DevTools
-
-Any `Stated Library` can be connected to the [Redux DevTools extension](https://github.com/zalmoxisus/redux-devtools-extension) to enable **time-travel debugging**.
-
-The DevTools extension allows you to view the `state` history of all connected `Stated Libraries` and reset `state` to any point in history, or play back the `state` history.
-
-```js
-// state.js
-import { devTools } from '@stated-library/core';
-import TodoLib from './TodoLib';
-import VisibilityLib from './VisibilityLib';
-
-const todoLib = new TodoLib();
-devTools.connect(todoLib, 'todoLib');
-
-const visLib = new VisibilityLib();
-devTools.connect(visLib, 'visLib');
-```
-Note that the standard time-travel debugging caveat for side-effects applies.  Whenever there are side effects involved, resetting to a particular `state` is not exactly equivalent to the original `state` because it does not undo side effects.  That includes server interactions, etc.  There's no support for undoing side effects.  
-
-## Hydrate from Local Storage
-A `Stated Library`'s state can be saved to local storage and then hydrated on start up using the `locStorage` tool.
-
-```js
-// state.js
-import { locStorage } from '@stated-library/core';
-import TodoLib from './TodoLib';
-import VisibilityLib from './VisibilityLib';
-
-const todoLib = new TodoLib();
-locStorage.connect(todoLib, '**todolib-state**');
-
-```
-
-## SSR
-Todo: implement SSR
+The `Todo` examples above demonstrate how easy it is to **develop and test** a `Stated Library` and use it in a `React` app.  But, that's only the tip of the iceberg.  `Stated Libraries` really shine with more complex applications...
 
 # Derived State
-`Stated Libraries` support derived state transparently.
+`Stated Libraries` can support derived state transparently.
 
-The [`StatedLibrary`](#stated-library) base class supports derived state via a `deriveState` option.  If a `deriveState` function is specified, the `updateState` method updates the "raw" `state` and the `deriveState` function is called to convert raw state to `state`.
+The @stated-library/base implementations support derived state via a `deriveState` option.  If a `deriveState` function is specified, the `updateState` method updates the raw `state` and the `deriveState` function is called to convert raw state to `state`.
 
-Here's how `completedTodos` and `activeTodos` could be added to the `Todo` library as derived state.
+This example adds `completedTodos` and `activeTodos` to the `Todo` library's `state` via the derive state option.
 
 ```js
 // TodoLib.js
-import StatedLibBase from '@stated-library/base';
+import { createStatedLib } from '@stated-library/base';
 import createTodo from './createTodo';
+import fetchTodosFromCloud from './fetchTodosFromCloud';
 
 function deriveState(rawState) {
   return {
-    todos: rawState.todos,
+    ...rawState,
     activeTodos: rawState.todos.filter(todo => !todo.completed),
     completedTodos: rawState.todos.filter(todo => todo.completed),
   }
 }
 
-export default class TodoLib extends StatedLibBase {
-  
-  constructor(){
-    super({todos: []}, {deriveState});
-    StatedLibBase.bindMethods(this);
-  }
+const createTodoLib = () => createStatedLib(
+  // initial state
+  { todos: [] },
+  // "input" methods
+  {
+    addTodo(title) {
+      this.updateState({
+        todos: this.state.todos.concat([ createTodo(title) ])
+      }, "ADD_TODO");
+    },
+    
+    toggleTodo(id) {
+      this.updateState({
+        todos: this.state.todos.map(todo =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        ),
+      }), "TOGGLE_TODO");
+    },
+    
+    async fetchTodos() {
+      this.updateState({isFetching: true}, "FETCH_TODOS_START");
+      const newTodos = await fetchTodosFromCloud();
+      this.updateState({
+        todos: this.state.todos.concat(newTodos),
+        isFetching: false,
+      }, "FETCH_TODOS_COMPLETE");
+    }
+  },
+  { deriveState }
+);
 
-  //...
-}
-
+export default createTodoLib;
 ```
 
 ### Testing Derived State
@@ -415,7 +297,6 @@ Derived state is completely transparent and can be tested just like any other pa
 import TodoLib from './TodoLib';
 // ...
 expect("Active and completed todos", () => {
-  const todoLib = new TodoLib();
   todoLib.addTodo('my first todo');
   todoLib.addTodo('my second todo');
   expect(todoLib.state.activeTodos).toHaveLength(2);
@@ -465,6 +346,193 @@ function deriveState(rawState) {
 // ...
 ```
 
+# Multiple Stated Libraries
+A typical application would use several `Stated Libraries` and create global library instances together, e.g. in a `state.js` module, to be exported and used throughout the application.  `state.js` is analogous to _where_ a global `Redux` store would be created, but it is _not_ a global store like `Redux`.  `state.js` can also be used as a library integration layer or business logic layer.
+
+Here's an example `state.js`:
+
+```jsx
+// state.js
+import createTodoLib from './TodoLib';
+import createVisibilityLib from './VisibilityLib';
+
+const todoLib = createTodoLib();
+const visLib = createVisibilityLib();
+
+export {todoLib, visLib};
+```
+
+# State Composition
+
+State composition allows `state$` to be manipulated, combined, reshaped, etc.
+
+The [`mapState`](#mapstate) function composes `state$`.  It takes one or more `state$` in, and creates another `state$`.  The resulting `state$` can be used as an input to another `mapState`, and so on...
+
+`mapState` is a _reactive operator_ -- observable(s) in, observable out.  When using `mapState`, you are essentially _reactive programming_, but you won't know it.  (In fact, `mapState` can be implemented trivially with the RxJS operators: `combineLatest` + `map` + `distinctUntilChanged`.  `Stated Libraries` uses a custom implementation and does not have a dependency on RxJS.)
+
+State composition allows incredible abstractions.  That means there are a lot of ways to structure an app.
+
+This example uses `mapState` to combine `state$` from a `Todo` library and a `Visibility` library to make `appState$` that contains only "visible" todos.
+
+```jsx
+// state.js
+import createTodoLib from './TodoLib';
+import createVisibilityLib from './VisibilityLib';
+
+const todoLib = createTodoLib();
+const visLib = createVisibilityLib();
+
+const appState$ = mapState(
+  [todoLib.state$, visLib.state$],
+  ([todoLibState, visLibState]) => ({
+    visibleTodos: visLibState.visibility === 'all'
+      ? todoLibState.todos
+      : todoLibState.activeTodos,
+    addTodo: state.addTodo,
+  }));
+
+export {todoLib, visLib, appState$};
+```
+
+This example creates an equivalent `appState$`, but utilizes an intermediate `visibleTodos$`:
+
+```jsx
+// state.js
+import createTodoLib from './TodoLib';
+import createVisibilityLib from './VisibilityLib';
+
+const todoLib = createTodoLib();
+const visLib = createVisibilityLib();
+
+const visibleTodos$ = mapState(
+  [todoLib.state$, visLib.state$],
+  ([todoLibState, visLibState]) =>
+    visLibState.visibility === 'all'
+      ? todoLibState.todos
+      : todoLibState.activeTodos
+  );
+
+const appState$ = mapState(
+  [todoLib.state$, visibleTodos$],
+  ([todoLibState, visibleTodos]) => ({
+    todos: visibleTodos,
+    addTodo: todoLibState.addTodo,
+  }));
+
+export {todoLib, visLib, appState$, visibleTodos$};
+```
+
+Another way to utilize composed state is to create a `Redux`-like store combining all libraries into a single `state$`.
+
+```jsx
+// state.js
+import createTodoLib from './TodoLib';
+import createVisibilityLib from './VisibilityLib';
+
+const todoLib = createTodoLib();
+const visLib = createVisibilityLib();
+
+const state$ = mapState(
+  [todoLib.state$, visLib.state$],
+  ([todoLibState, visLibState]) => ({
+    todoLibState,
+    visLibState,
+  }));
+
+const visibleTodos$ = mapState(
+  $state,
+  ({todoLibState, visLibState}) =>
+    visLibState.visibility === 'all'
+      ? todoLibState.todos
+      : todoLibState.activeTodos
+);
+
+const appState$ = mapState(
+  [todoLib.state$, visibleTodos$],
+  ([todoLibState, visibleTodos]) => ({
+    todos: visibleTodos,
+    addTodo: state.addTodo,
+  }));
+
+export {todoLib, visLib, appState$, state$, visibleTodos$};
+```
+
+### `mapState` vs `mapStateToProps`
+`mapState` is similar to `react-redux`'s `mapStateToProps`/`mapDispatch` functionality.  The big differences are:
+- mapping takes place externally to the `React` binding
+- "methods" are included with `state`
+- "mapped state" is composable
+
+These are significant differences because they allow much more flexibility and abstraction, and they allow the application logic to be completely independent of the application framework; most importantly, it allows thorough testing of application logic outside of application frameworks.
+
+### Testing Composed State
+
+```js
+import { getValue } from '@stated-library/core';
+
+// reset state import for each test
+let state;
+beforeEach(() => {
+  jest.resetModules();
+  state = require('./state');
+})
+
+test('visibleTodos$ contains todos filtered thru visibilityFilter', () => {
+  const { todoLib, visibleTodos$ } = state;
+  todoLib.addTodo("First");
+  todoLib.addTodo("Second");
+
+  expect(getValue(visibleTodos$)).toHaveLength(2);
+
+  visLib.setVisibility("active");
+  expect(getValue(visibleTodos$)).toHaveLength(2);
+
+  todoLib.toggle(todoLib.state.todos[0].id);
+  expect(getValue(visibleTodos$)).toHaveLength(1);
+
+});
+``` 
+
+# Tooling
+The [`Stated Library Interface`](#stated-library-interface) supports generic external tooling because external tools can subscribe to a library's `state$` or `stateEvent$` to monitor `state`, and set a library's `state` using `resetState`.  That's all the functionality that is needed for a lot of external tooling like DevTools, state hydrators (local or SSR), analytics, etc.
+
+## Redux DevTools
+
+Any `Stated Library` can be connected to the [Redux DevTools extension](https://github.com/zalmoxisus/redux-devtools-extension) to enable **time-travel debugging**.
+
+The DevTools extension allows you to view the `state` history of all connected `Stated Libraries` and reset `state` to any point in history, or play back the `state` history.
+
+```js
+// state.js
+import { devTools } from '@stated-library/core';
+import createTodoLib from './TodoLib';
+import createVisibilityLib from './VisibilityLib';
+
+const todoLib = createTodoLib();
+devTools.connect(todoLib, 'todoLib');
+
+const visLib = createVisibilityLib();
+devTools.connect(visLib, 'visLib');
+```
+Note that the standard time-travel debugging caveat for side-effects applies.  Whenever there are side effects involved, resetting to a particular `state` is not exactly equivalent to the original `state` because it does not undo side effects.  That includes server interactions, etc.  There's no support for undoing side effects.  
+
+## Hydrate from Local Storage
+A `Stated Library`'s state can be saved to local storage and then hydrated on start up using the `locStorage` tool.
+
+```js
+// state.js
+import { locStorage } from '@stated-library/core';
+import createTodoLib from './TodoLib';
+import createVisibilityLib from './VisibilityLib';
+
+const todoLib = createTodoLib();
+locStorage.connect(todoLib, '**todolib-state**');
+
+```
+
+## SSR
+Todo: implement SSR
+
 # Full Example Todo App
 The [TodoApp example](https://github.com/bradfordlemley/stated-library/tree/master/examples/todo-lib) is a Todo-MVC app that demonstrates `Stated Libraries`, including derived state, memoization, multiple libraries, Redux DevTools, and Local State Hyrdation.
 
@@ -489,11 +557,11 @@ _In some cases it might be preferrable to implement library-specific methods ins
 
 ```js
 // state.js
-import AuthLib from './AuthLib';
-import TodoLib from './TodoLib';
+import createAuthLib from './AuthLib';
+import createTodoLib from './TodoLib';
 
-const todoLib = new TodoLib();
-const authLib = new AuthLib();
+const todoLib = createTodoLib();
+const authLib = createAuthLib();
 
 authLib.state$.subscribe(state => {
   // send auth state updates to todoLib
@@ -524,11 +592,11 @@ Here's how you could implement interactions with RxJs:
 // state.js
 import { from } from 'rxjs';
 import { distinctUntilKeyChanged } from 'rxjs/operators';
-import AuthLib from './AuthLib';
-import TodoLib from './TodoLib';
+import createAuthLib from './AuthLib';
+import createTodoLib from './TodoLib';
 
-const todoLib = new TodoLib();
-const authLib = new AuthLib();
+const todoLib = createTodoLib();
+const authLib = createAuthLib();
 
 from(todoLib.state$).pipe(
   distinctUntilKeyChanged('authFailed'),
@@ -552,11 +620,11 @@ This example shows how a local instance of an auto complete library could be use
 // AutoComplete.js
 import { mapState } from '@stated-library/core';
 import { use } from '@stated-library/react';
-import AutoCompleteLib from './AutoCompleteLib';
+import createAutoCompleteLib from './AutoCompleteLib';
 
 const AutoComplete = () => {
   const ({setSearchText, searchText, results}) = use(() => {
-    const autoLib = new AutoCompleteLib();
+    const autoLib = createAutoCompleteLib();
     return mapState(autoLib.state$, state => ({
       searchText: state.searchText,
       results: state.results,
@@ -590,10 +658,11 @@ Managing `state` using a `Stated Library` is a way to organize `state` within th
 
 | Package        | Contains           |
 | ------------- |:-------------:|
-| `@stated-library/interface` |[ Stated Library Interface](#stated-library-interface) definition (typescript) |
-| `@stated-library/core`      | [`mapState`](#mapstate), [`devTools`](#devtools), [`locStore`](#locstore), [`observable`](#observable) |
-| `@stated-library/base`      | [`StatedLibrary`](#stated-library-base) base class      |
-| `@stated-library/react`     | React bindings: [`connect`](#connect), [`use`](#use), [`link`](#link)         |
+| @stated-library/interface |[ Stated Library Interface](#stated-library-interface) (typescript) |
+| @stated-library/core      | [`mapState`](#mapstate), [`devTools`](#devtools), [`locStore`](#locstore), [`observable`](#observable) |
+| @stated-library/base      | [`createStatedLib`](#createstatedlibrary), [`StatedLibBase`](#statedlibbase)      |
+| @stated-library/react     | [`connect`](#connect), [`use`](#use), [`link`](#link)         |
+
 # API
 ## Interface
 All `Stated Libraries` implement the `Stated Library Interface`:
@@ -659,20 +728,98 @@ Note: `mapState` is technically a custom observable operator.  It is essentially
 * `locState.connect(library, key) => {clear: () => void, disconnect: () => void }`
 * `locState.clearAll()`
 
-## StatedLibrary Base Class
+## Base
+### createStatedLib
+* `createStatedLib(initialState, methodsOrGetMethods, opts?)`
+```jsx
+// Counter.js
+import { createStatedLib } from '@stated-library/base';
 
+function deriveState(rawState) {
+  return {
+    ...rawState,
+    x10: rawState.counter * 10,
+  }
+}
+
+const createCounter = () => createStatedLib(
+  { counter },
+  {
+    increment() {
+      this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+    },
+    decrement() {
+      this.updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
+    },
+  },
+  { deriveState }
+)
+```
+
+`methodsOrGetMethods` can also be a function which returns "input" methods.  This makes for a more functional approach and also provides an opportunity to encapsulate.
+
+```jsx
+// Counter.js
+import { createStatedLib } from '@stated-library/base';
+
+function deriveState(rawState) {
+  return {
+    ...rawState,
+    x10: rawState.counter * 10,
+  }
+}
+
+const createCounter = () => createStatedLib(
+  { counter },
+  ({ updateState }) => ({
+    increment() {
+      updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+    },
+    decrement() {
+      updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
+    },
+  }),
+  { deriveState }
+)
+```
+
+### StatedLibBase
+```jsx
+// Counter.js
+import { StatedLibBase } from '@stated-library/base';
+
+function deriveState(rawState) {
+  return {
+    ...rawState,
+    x10: rawState.counter * 10,
+  }
+}
+
+class Counter extends StatedLibBase {
+  constructor(counter: number = 0) {
+    super({ counter }, { deriveState });
+    StatedLibBase.bindMethods(this);
+  }
+  increment() {
+    this.updateState({ counter: this.state.counter + 1 }, 'INCREMENT');
+  }
+  decrement() {
+    this.updateState({ counter: this.state.counter - 1 }, 'DECREMENT');
+  }
+}
+```
 ## React Bindings
-`Stated Libraries` supports two different ways to integrate into React: 
+`Stated Libraries` supports two ways to bind to React: 
 
 * HOC (Prop Injection): [`connect`](#connect)
 * [Direct Injection](#direct-injection): [`link`](#link)(stateful components) / [`use`](#use)(functional components)
 
-### `connect`
+### connect
 `connect` takes an observable and creates an HOC factory to provide the observable value as props to wrapped components.
 
 * `connect(state$)(component) => HOC`
 
-`connect` is similar to `react-redux` of the same name, but it doesn't take `mapStateToProps` because all of the mapping functionality is done externally.
+`connect` is similar to `react-redux` of the same name, but it doesn't take `mapStateToProps`/`mapDispatch` because all of the mapping functionality is done externally.
 
 This example shows how to use `connect` with a container/presentation components style:
 
@@ -710,21 +857,13 @@ const appState$ = mapState(
 
 export default connect(appState$)(App);
 ```
-Notice that we used `visibleTodos$` as an input to create `appState$`.  This demonstrates the power of `state$` observables composition.  We could have used `todoLib.state$` and `visLib.state$` as inputs, but we contained the `visibleTodos$` logic in `state.js`.
 
-We added the `addTodo` function directly from `todoLib`.  We can do that because it was already bound using `StatedLib.bindMethods`, and it is a static value.  (It is possible for libraries to put methods on `state` which would allow `appData$` to be completely computed from `state` -- that might be developed as a best practice later on, but it's not necessary.)
 
 ### Direct Injection
 
-`connect` provides observable as props via an HOC, but observables can also be used without an HOC -- by directly injecting the value into components' state.
+**Direct injection** means that `state$` will be a part of the component's `state` rather than being provided to the component as props (via an HOC).  The benefit of direct injection is that there is no extra component in the React component tree.
 
-The **direct injection** method is different for stateful class components (which receive state via `setState`) vs functional components (which receive state via hooks).
-
-This **direct injection** method means there is no HOC, which also means that there's no container/presentational component.
-
-Again, both ways are valid...
-
-### Functional Components: `use`
+### use
 **`use`** is the direct injection mechanism for functional components.  It creates a React hook that updates the component whenever the observable emits a new value.
 
 ```jsx
@@ -743,7 +882,7 @@ const appState$ = mapState(
 )
 
 export default () => {
-  const {todos, addTodo} = use(appData$);
+  const {todos, addTodo} = use(appState$);
   return (
     <div>
       <button onClick={() => addTodo("New todo")}>
@@ -759,7 +898,7 @@ export default () => {
 };
 
 ```
-### Stateful Components: `link`
+### link
 **`link`** is the direct injection mechanism for stateful class components.  It spreads the observable's value onto the component's `state` by calling the component's `setState` method whenever the observable emits a new value.  `link` follows the standard life-cycle [subscription mechanism](https://reactjs.org/docs/react-component.html#componentdidmount).
 
 ```jsx
@@ -792,7 +931,7 @@ export default class App extends React.Component {
   }
 
   render() {
-    const {todos, addTodo} = use(appData$);
+    const {todos, addTodo} = use(appState$);
     return (
       <div>
         <button onClick={() => addTodo("New todo")}>
@@ -808,3 +947,10 @@ export default class App extends React.Component {
   };
 
 ```
+
+### Ode to Redux
+Almost everything in `Stated Libraries` is informed by, borrowed from, or outright stolen from `Redux`.  While many of the concepts used in `Redux` are brilliant, I personally find developing with `Redux` to be slow and painful, mainly due to:
+- boilerplate (action/reducer/etc for every little thing)
+- inability to implement complex functionality without strange dependencies on external middleware
+- inability to create self-contained modules
+- effort required to test all of the above

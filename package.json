@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@unfig/toolkit-monorepo": "^0.0.4-alpha.0",
+    "doctoc": "^1.4.0",
     "husky": "^1.3.1",
     "jest-junit": "^6.3.0",
     "lerna": "^3.13.1",

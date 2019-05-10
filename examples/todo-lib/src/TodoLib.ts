@@ -1,4 +1,4 @@
-import StatedLibBase from '@stated-library/base';
+import { createStatedLib } from '@stated-library/base';
 import { createSelector } from 'reselect';
 // @ts-ignore: cuid has no default export
 import cuid from 'cuid';
@@ -34,7 +34,7 @@ const getCompletedTodos = createSelector<RawState, Todo[], Todo[]>(
   todos => todos.filter(todo => todo.completed)
 );
 
-const deriveState = (state: RawState): State => {
+function deriveState(state: RawState): State {
   return {
     ...state,
     get activeTodos() {
@@ -44,80 +44,78 @@ const deriveState = (state: RawState): State => {
       return getCompletedTodos(state);
     },
   };
-};
+}
 
 const DEFAULT_STATE: RawState = {
   todos: [],
 };
 
-export default class TodoLib extends StatedLibBase<RawState, State> {
-  constructor(state?: Partial<RawState>) {
-    super(
-      {
-        ...DEFAULT_STATE,
-        ...state,
+const createTodoLib = () =>
+  createStatedLib(
+    DEFAULT_STATE,
+    ({ updateState }) => ({
+      addTodo(text: string) {
+        updateState(
+          state => ({
+            todos: state.todos.concat(makeTodo(text)),
+          }),
+          'ADDTODO'
+        );
       },
-      { deriveState, name: 'TodoLib' }
-    );
-  }
 
-  addTodo(text: string) {
-    this.updateState(
-      {
-        todos: this.state.todos.concat(makeTodo(text)),
+      toggle(id: string) {
+        updateState(
+          state => ({
+            todos: state.todos.map(todo =>
+              todo.id === id ? { ...todo, completed: !todo.completed } : todo
+            ),
+          }),
+          'TOGGLE_TODO'
+        );
       },
-      'ADDTODO'
-    );
-  }
 
-  toggle(id: string) {
-    this.updateState(
-      {
-        todos: this.state.todos.map(todo =>
-          todo.id === id ? { ...todo, completed: !todo.completed } : todo
-        ),
+      toggleAll(completed: boolean) {
+        updateState(
+          state => ({
+            todos: state.todos.map(todo =>
+              todo.completed === completed ? todo : { ...todo, completed }
+            ),
+          }),
+          'TOGGLE_ALL'
+        );
       },
-      'TOGGLE_TODO'
-    );
-  }
 
-  toggleAll(completed: boolean) {
-    this.updateState(
-      {
-        todos: this.state.todos.map(todo =>
-          todo.completed === completed ? todo : { ...todo, completed }
-        ),
+      updateTodo(id: string, updates: Partial<Todo>) {
+        updateState(
+          state => ({
+            todos: state.todos.map(todo =>
+              todo.id === id ? { ...todo, ...updates } : todo
+            ),
+          }),
+          'UPDATE_TODO'
+        );
       },
-      'TOGGLE_ALL'
-    );
-  }
 
-  updateTodo(id: string, updates: Partial<Todo>) {
-    this.updateState(
-      {
-        todos: this.state.todos.map(todo =>
-          todo.id === id ? { ...todo, ...updates } : todo
-        ),
+      destroy(id: string) {
+        updateState(
+          state => ({
+            todos: state.todos.filter(todo => todo.id !== id),
+          }),
+          'DESTROY_TODO'
+        );
       },
-      'UPDATE_TODO'
-    );
-  }
 
-  destroy(id: string) {
-    this.updateState(
-      {
-        todos: this.state.todos.filter(todo => todo.id !== id),
+      clearCompleted() {
+        updateState(
+          state => ({
+            todos: state.todos.filter(todo => !todo.completed),
+          }),
+          'CLEAR_COMPLETED'
+        );
       },
-      'DESTROY_TODO'
-    );
-  }
+    }),
 
-  clearCompleted() {
-    this.updateState(
-      {
-        todos: this.state.todos.filter(todo => !todo.completed),
-      },
-      'CLEAR_COMPLETED'
-    );
-  }
-}
+    { deriveState }
+  );
+
+export default createTodoLib;

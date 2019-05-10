@@ -32,8 +32,9 @@ export function createLocalStorageConnector() {
         clear: () => localStorage.removeItem(key),
       };
     },
-    onState: function onState(state, key) {
-      writeFns[key](state);
+    onStateEvent(stateEvent, key) {
+      const { rawState } = stateEvent;
+      writeFns[key](rawState);
     },
   });
 

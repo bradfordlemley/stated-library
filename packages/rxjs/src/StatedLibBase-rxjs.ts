@@ -1,8 +1,12 @@
 import { BehaviorSubject } from 'rxjs';
-import { LibBase } from '@stated-library/base';
+import { StatedLibBase } from '@stated-library/base';
 
-export default class StatedLibRxJs<R, D = R> extends LibBase<R, D> {
-  constructor(...args) {
-    super(initialValue => new BehaviorSubject(initialValue), ...args);
+export default class StatedLibRxJs<R, D = R> extends StatedLibBase<R, D> {
+  constructor(initialValue, opts?) {
+    super(initialValue, Object.assign(
+      {},
+      opts,
+      { createObs: initialValue => new BehaviorSubject(initialValue) }
+    ));
   }
 }

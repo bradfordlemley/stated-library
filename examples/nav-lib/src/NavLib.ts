@@ -9,7 +9,7 @@ export default class NavLib<Page> extends StatedLibBase<
   State<Page>
 > {
   constructor(state?: Partial<State<Page>>) {
-    super(state);
+    super(Object.assign({}, {page: ""}, state));
   }
 
   setPage(page: Page) {

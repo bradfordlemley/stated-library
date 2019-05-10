@@ -1,4 +1,4 @@
-import TodoLib from "@stated-library/todo-lib";
+import createTodoLib from "@stated-library/todo-lib";
 import NavLib from "@stated-library/nav-lib";
 import FilterLib from './FilterLib';
 export {VISIBILITIES} from './FilterLib';
@@ -9,13 +9,15 @@ export type Page = "todos"|"acct";
 
 export const navLib = new NavLib<Page>({page: "todos"});
 export const filterLib = new FilterLib({visibility: "all"});
-export const todoLib = new TodoLib();
+export const todoLib = createTodoLib();
 
 devTools.connect(todoLib, "todolib");
 devTools.connect(filterLib, "filterlib");
 devTools.connect(navLib, "navlib");
 
 locStorage.connect(todoLib, "todolib");
+
+export {locStorage};
 
 export const visibility$ = mapState(filterLib.state$, ({visibility}) => visibility);
 

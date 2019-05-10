@@ -1,4 +1,4 @@
-import { shallowEqual } from '@stated-library/core';
+import { shallowEqual, createObservable } from '@stated-library/core';
 
 import {
   StatedLibraryInterface,
@@ -6,11 +6,12 @@ import {
   StateEvent,
 } from '@stated-library/interface';
 
-type DeriveState<RawState, State> = (state: RawState) => State;
-
-type LibOpts<RawState, State> = {
-  deriveState?: DeriveState<RawState, State>;
+export type LibOpts<RawState, State> = {
+  deriveState?: (state: RawState) => State;
+  createObs?: ObservableCtor<any>;
 };
+
+export type GetUpdates<State, RawState> = (state: State) => Partial<RawState>;
 
 // Minimal Observable
 interface Observable<Value> extends StatedLibraryObservable<Value> {
@@ -37,7 +38,7 @@ function makeStateEvent(rawState, event, meta, opts) {
   return stateData;
 }
 
-function bindMethodsFromProto(obj) {
+export function bindMethodsFromProto(obj) {
   const proto = Object.getPrototypeOf(obj);
   const descriptors = Object.getOwnPropertyDescriptors(proto);
   for (const key of Object.keys(descriptors)) {
@@ -50,18 +51,15 @@ function bindMethodsFromProto(obj) {
   }
 }
 
-class LibBase<RawState, State = RawState, Meta = {}>
+class StatedLibBase<RawState, State = RawState, Meta = {}>
   implements StatedLibraryInterface<RawState, State, Meta> {
   opts: LibOpts<RawState, State>;
   stateEvent$: StatedLibraryObservable<StateEvent<RawState, State, Meta>>;
   state$: StatedLibraryObservable<State>;
 
-  constructor(
-    createObs: ObservableCtor<any>,
-    initialState?: RawState,
-    opts?: LibOpts<RawState, State>
-  ) {
-    this.opts = opts || {};
+  constructor(initialState: RawState, opts?: LibOpts<RawState, State>) {
+    this.opts = Object.assign({}, opts);
+    const createObs = this.opts.createObs || createObservable;
     const initialEvent = makeStateEvent(initialState, 'INIT', undefined, opts);
     this.stateEvent$ = createObs(initialEvent);
     this.state$ = createObs(initialEvent.state);
@@ -91,7 +89,15 @@ class LibBase<RawState, State = RawState, Meta = {}>
     );
   }
 
-  updateState(updates: Partial<RawState>, event: string, meta?: Meta) {
+  updateState(
+    updatesOrGetUpdates: Partial<RawState> | GetUpdates<State, RawState>,
+    event: string,
+    meta?: Meta
+  ) {
+    const updates =
+      typeof updatesOrGetUpdates === 'function'
+        ? updatesOrGetUpdates(this.state)
+        : updatesOrGetUpdates;
     const rawState = Object.assign(
       {},
       this.stateEvent$.value.rawState,
@@ -105,6 +111,6 @@ class LibBase<RawState, State = RawState, Meta = {}>
   }
 }
 
-export default LibBase;
+export default StatedLibBase;
 
-export { LibBase };
+export { StatedLibBase };
