@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/bradfordlemley/stated-library/issues"
   },
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "files": [
@@ -24,7 +24,7 @@
   },
   "typings": "dist/index.d.ts",
   "dependencies": {
-    "@stated-library/base": "^1.0.5",
+    "@stated-library/base": "^1.0.6",
     "cuid": "^2.1.6",
     "reselect": "^4.0.0"
   },
