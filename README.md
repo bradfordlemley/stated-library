@@ -23,11 +23,13 @@
 
 [types-badge]: https://img.shields.io/npm/types/typescript.svg
 
-**The Problem:** State Management solutions, like Redux, focus on _managing state_, but their real purpose is to _implement functionality_.  That approach is backwards because _functionality produces state_, not the other way around.  State Management solutions employ convoluted contraptions (middleware) to achieve _functionality_ (side effects) because _functionality_ doesn't fit cleanly into _state_.  Ultimately, this requires extra coding, extra brain cycles, extra time, slowing down development.
+**The Problem:** The real purpose of "State Management" solutions, like Redux, is to implement functionality.  But, functionality doesn't fit cleanly into state, so "State Management" solutions end up inventing convoluted contraptions, like middleware, to achieve functionality.  And we end up developing application functionality using these convoluted contraptions, with our hands tied behind our backs.  It all requires extra brain cycles, extra code, extra time...sloooowing down development.
 
-**The Solution:** Stated Libraries implement _functionality_ and output _state_.  Stated Libraries are regular objects that output state in a standard way.  _Functionality_ naturally produces _state_, there are no convoluted contraptions required.
+**The Solution:** Focus on implementing functionality, not managing state.  _Functionality naturally produces state_, no convoluted contraptions required.
 
-**The Benefits:** Stated Libraries are completely modular :package:, platform-agnostic :recycle:, easy to learn :dizzy:, fast to develop :rocket:, easy to test :trophy:, and easy to use :white_check_mark:.  Stated Libraries enable efficient development workflows and empowering us to develop higher-quality applications faster :dart:.
+Stated Libraries are just regular objects that output state in a standard way.  A Stated Library is a self-contained module of functionality, independently developed and tested.  There are no limitations on what it can do or how it does it.  The standard state output allows libraries to be combined together in standard ways to create more complex functionality which also produces state in the same standard way.
+
+**The Benefits:** Stated Libraries are completely modular :package:, platform-agnostic :recycle:, easy to learn :dizzy:, fast to develop :rocket:, easy to test :trophy:, and easy to use :white_check_mark:.  This enables efficient development workflows and empowers us to develop higher-quality applications faster :dart:.
 
 Read more about the motivation and design process for `Stated Libraries` in: [Why State Management Is All Wrong](https://medium.com/@bradfordlemley/why-state-management-is-all-wrong-ca9f3bbde869?source=friends_link&sk=5e2d7de65bf45c46133db6c437bb9a1e).
 
@@ -186,13 +188,13 @@ expect("Fetches todos from cloud", async () => {
 });
 ```
 
-### Using a Stated Library
-This example shows how the Todo library from above could be used in a React app.
+### Using Stated Libraries
+This example shows how a Stated Library can be used in a React app.
 
 ```jsx
 // App.js
 import { mapState } from '@stated-library/core';
-import { connect } from '@stated-library/react';
+import { use } from '@stated-library/react';
 import createTodoLib from './TodoLib';
 
 const todoLib = createTodoLib();
@@ -205,7 +207,9 @@ const appState$ = mapState(
   })
 );
 
-const App = ({todos, addTodo}) => {
+export default function App() {
+  const {addTodo, todos} = use(appState$);
+
   return (
     <div>
       <button onClick={() => addTodo("New todo")}>
@@ -219,13 +223,13 @@ const App = ({todos, addTodo}) => {
     </div>
   );
 };
-
-export default connect(appState$)(App);
 ```
 
-The [`mapState`](#mapstate) operator is used to compose state for the App component.  Notice that library methods can be included in state; there is no magic here -- library methods can be treated like regular pieces of state because they are pre-bound (if needed).
+The [`mapState`](#mapstate) operator is used to compose state.  This is a simple example, but `mapState` is super powerful -- it can be used to combine state from multiple libraries, compute derived state, and more.  Its output can be used as the input to another `mapState`.  `mapState` really shines in more complex use cases.
 
-The [`connect`](#connect) binding is used to provide the state to the App component.  `connect` creates an HOC to deliver state as props, similar to [react-redux `connect`](https://react-redux.js.org/api/connect) -- except, there is no `mapStateToProps` or `mapDispatch` because that functionality occurs in the framework-agnostic state composition layer, external to the view-framework binding.  See [React](#react) section for other React binding methods.
+Notice that library methods (functions) can be included in state.  There is no magic here, functions are just objects and can be treated like regular pieces of state data.  Sometimes functions need to operate on a particular state, in which case a new function is created as part of the state.  But, library methods, like `addTodo`, don't depend on a particular state, they operate on whatever the current state is, so the library method function objects don't change over time.  Don't worry if this doesn't make sense yet, it will make more sense with more complex examples; the bottom line is that functions can be a part of state.
+
+The [`use`](#use) binding is the only React-specific piece and is used to provide state to a functional component.  There is a similar binding for React class components and also a `connect` binding which is similar to [react-redux `connect`](https://react-redux.js.org/api/connect) and creates an HOC to deliver state as props.  See [React](#@stated-library/react) section for other React binding methods.
 
 ## State Composition
 
@@ -852,6 +856,7 @@ class Counter extends StatedLibBase {
   }
 }
 ```
+
 ## @stated-library/react
 `Stated Libraries` supports two ways to bind to React: 
 
