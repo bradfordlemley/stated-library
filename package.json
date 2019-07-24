@@ -13,13 +13,13 @@
     "release": "yarn reset && lerna version --no-push"
   },
   "devDependencies": {
-    "@unfig/toolkit-monorepo": "^0.0.4-alpha.0",
+    "@unfig/toolkit-monorepo": "0.0.9",
     "doctoc": "^1.4.0",
     "husky": "^1.3.1",
     "jest-junit": "^6.3.0",
     "lerna": "^3.13.1",
     "rimraf": "2.6.3",
-    "unfig": "^0.0.3-alpha.0"
+    "unfig": "0.0.9"
   },
   "workspaces": {
     "packages": [
