@@ -4,6 +4,7 @@ import {
   mapState as coreMapState,
 } from '@stated-library/core';
 
+// @ts-ignore
 import makeMapStateTests from '../../core/test/makeMapStateTests';
 
 import { BehaviorSubject } from 'rxjs';

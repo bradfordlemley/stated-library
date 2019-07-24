@@ -1,5 +1,6 @@
 import StatedLibRxJs from './StatedLibBase-rxjs';
 
+// @ts-ignore
 import makeTests from '../../base/test/makeTests';
 
 class Counter extends StatedLibRxJs<{ counter: number }> {

@@ -1,4 +1,4 @@
-function makeMapStateTests(mapState, createObs, isRxJs = false) {
+export default function makeMapStateTests(mapState, createObs, isRxJs = false) {
   let subs = [];
   beforeEach(() => (subs = []));
   afterEach(() => subs.map(sub => sub.unsubscribe()));
@@ -221,6 +221,6 @@ function makeMapStateTests(mapState, createObs, isRxJs = false) {
   });
 }
 
-module.exports = makeMapStateTests;
+// module.exports = makeMapStateTests;
 
 // export { makeMapStateTests };

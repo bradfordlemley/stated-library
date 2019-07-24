@@ -1,6 +1,8 @@
-const process = require('process');
+// const process = require('process');
+import { StatedLibraryInterface } from '@stated-library/interface';
 
-function makeTests(createCounter, isRxJs = false) {
+// type Counter = StatedLibraryInterface<>
+export default function makeTests(createCounter, isRxJs = false) {
   let subs;
 
   beforeEach(() => (subs = []));
@@ -169,6 +171,7 @@ function makeTests(createCounter, isRxJs = false) {
   });
 
   test(`Works with NODE_ENV==='production'`, () => {
+    // @ts-ignore
     const { env } = process;
     function setNodeEnv(e, nodeEnv) {
       e.NODE_ENV = nodeEnv;
@@ -195,4 +198,4 @@ function makeTests(createCounter, isRxJs = false) {
   });
 }
 
-module.exports = makeTests;
+// module.exports = makeTests;

@@ -6,8 +6,9 @@ type Settings = {
   filter: 'all' | 'completed';
   count: number;
 };
+
 beforeEach(() => {
-  settingsLib = new SettingsLib({ filter: 'all', count: 0 });
+  settingsLib = new SettingsLib<Settings>({ filter: 'all', count: 0 });
 });
 
 test('Sets filter', () => {

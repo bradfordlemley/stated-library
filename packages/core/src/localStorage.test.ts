@@ -14,7 +14,7 @@ const js = o => JSON.stringify(o);
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 test('stores to local storage', async () => {
-  const counterLib = new CounterLib();
+  const counterLib = CounterLib();
   locStore.connect(counterLib, 'counter');
   counterLib.increment();
   await delay();
@@ -25,21 +25,21 @@ test('stores to local storage', async () => {
 });
 
 test('initializes from local storage', async () => {
-  const counterLib = new CounterLib();
+  const counterLib = CounterLib();
   localStorage.setItem('counter', JSON.stringify({ counter: 10 }));
   locStore.connect(counterLib, 'counter');
   expect(counterLib.state).toEqual({ counter: 10 });
 });
 
 test('initializes from corrupt local storage', async () => {
-  const counterLib = new CounterLib();
+  const counterLib = CounterLib();
   localStorage.setItem('counter', 'w{}');
   locStore.connect(counterLib, 'counter');
   expect(counterLib.state).toEqual({ counter: 0 });
 });
 
 test('clears individual local storage', async () => {
-  const counterLib = new CounterLib();
+  const counterLib = CounterLib();
   const sub = locStore.connect(counterLib, 'counter');
   counterLib.increment();
   expect(localStorage.getItem('counter')).not.toEqual(null);
@@ -48,8 +48,8 @@ test('clears individual local storage', async () => {
 });
 
 test('clears all local storage', async () => {
-  const counterLib = new CounterLib();
-  const counterLib2 = new CounterLib();
+  const counterLib = CounterLib();
+  const counterLib2 = CounterLib();
   locStore.connect(counterLib, 'counter');
   locStore.connect(counterLib2, 'counter2');
 
