@@ -1,7 +1,3 @@
-// const process = require('process');
-import { StatedLibraryInterface } from '@stated-library/interface';
-
-// type Counter = StatedLibraryInterface<>
 export default function makeTests(createCounter, isRxJs = false) {
   let subs;
 
@@ -197,5 +193,3 @@ export default function makeTests(createCounter, isRxJs = false) {
     });
   });
 }
-
-// module.exports = makeTests;

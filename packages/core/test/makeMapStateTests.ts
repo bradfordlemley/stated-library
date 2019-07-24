@@ -220,7 +220,3 @@ export default function makeMapStateTests(mapState, createObs, isRxJs = false) {
     });
   });
 }
-
-// module.exports = makeMapStateTests;
-
-// export { makeMapStateTests };
