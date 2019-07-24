@@ -36,7 +36,7 @@
     "@babel/preset-react": "7.0.0",
     "@babel/preset-typescript": "7.1.0",
     "@types/node": "^11.13.8",
-    "@unfig/toolkit-react-comp": "^0.0.4-alpha.0",
+    "@unfig/toolkit-react-comp": "0.0.9",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "10.0.1",
     "babel-jest": "23.6.0",
@@ -48,6 +48,6 @@
     "rollup": "^1.4.0",
     "rxjs": "^6.5.1",
     "typescript": "^3.4",
-    "unfig": "^0.0.3-alpha.0"
+    "unfig": "0.0.9"
   }
 }

@@ -1,4 +1,5 @@
 import { createStatedLib } from '.';
+// @ts-ignore
 import makeTests from '../test/makeTests';
 
 const createCounter = (counter = 0, deriveState) =>

@@ -1,6 +1,4 @@
-const process = require('process');
-
-function makeTests(createCounter, isRxJs = false) {
+export default function makeTests(createCounter, isRxJs = false) {
   let subs;
 
   beforeEach(() => (subs = []));
@@ -169,6 +167,7 @@ function makeTests(createCounter, isRxJs = false) {
   });
 
   test(`Works with NODE_ENV==='production'`, () => {
+    // @ts-ignore
     const { env } = process;
     function setNodeEnv(e, nodeEnv) {
       e.NODE_ENV = nodeEnv;
@@ -194,5 +193,3 @@ function makeTests(createCounter, isRxJs = false) {
     });
   });
 }
-
-module.exports = makeTests;

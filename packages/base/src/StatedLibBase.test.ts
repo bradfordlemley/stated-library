@@ -1,4 +1,5 @@
 import { StatedLibBase } from '.';
+// @ts-ignore
 import makeTests from '../test/makeTests';
 
 class Counter extends StatedLibBase<{ counter: number }> {

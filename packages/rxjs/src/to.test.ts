@@ -1,12 +1,12 @@
 import { toState$, toStateEvent$ } from './index';
 import CounterLib from '@stated-library/counter-lib';
 
-let counterLib: CounterLib;
+let counterLib = CounterLib();
 let subs = [];
 
 beforeEach(() => {
   subs = [];
-  counterLib = new CounterLib();
+  counterLib = CounterLib();
 });
 
 afterEach(() => {

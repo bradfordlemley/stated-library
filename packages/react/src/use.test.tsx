@@ -4,12 +4,12 @@ import CounterLib from '@stated-library/counter-lib';
 import { use } from './index';
 import { mapState } from '@stated-library/core';
 
-let counterLib: CounterLib;
-let counterLib2: CounterLib;
+let counterLib = CounterLib();
+let counterLib2 = CounterLib();
 
 beforeEach(() => {
-  counterLib = new CounterLib();
-  counterLib2 = new CounterLib();
+  counterLib = CounterLib();
+  counterLib2 = CounterLib();
 });
 
 afterEach(cleanup);
@@ -96,7 +96,7 @@ test('Mutliple state$ can be combined', () => {
 test('Local counter', () => {
   const LocalCounter = () => {
     const { counter, increment, decrement } = use(() => {
-      const lib = new CounterLib(42);
+      const lib = CounterLib(42);
       return mapState(lib.state$, state => ({
         decrement: lib.decrement.bind(lib),
         increment: lib.increment.bind(lib),
@@ -169,7 +169,10 @@ test('Mutliple state$ can be combined', () => {
     })
   );
 
-  const { getByTestId } = render(<MockedComp state$={mappedState$} />);
+  const { getByTestId } = render(
+    // @ts-ignore
+    <MockedComp state$={mappedState$} />
+  );
   expect(MockedComp).toHaveBeenCalledTimes(1);
   expect(getByTestId('count-value').textContent).toBe('0');
   expect(getByTestId('count2-value').textContent).toBe('0');

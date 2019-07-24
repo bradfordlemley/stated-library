@@ -26,6 +26,7 @@ let devTools: typeof dt;
 beforeEach(() => {
   jest.resetModules();
   dtExt = createDevToolsExt();
+  // @ts-ignore
   window.__REDUX_DEVTOOLS_EXTENSION__ = dtExt;
   devTools = require('./devTools').default;
 });
@@ -88,6 +89,7 @@ test(`Ignores unknown messages`, () => {
 });
 
 test(`doesn't crash without devtools extension`, () => {
+  // @ts-ignore
   window.__REDUX_DEVTOOLS_EXTENSION__ = undefined;
   jest.resetModules();
   devTools = require('./devTools').default;

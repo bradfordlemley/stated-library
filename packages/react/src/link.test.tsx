@@ -4,12 +4,12 @@ import CounterLib from '@stated-library/counter-lib';
 import { render, fireEvent, cleanup } from 'react-testing-library';
 import { mapState } from '@stated-library/core';
 
-let counterLib: CounterLib;
-let counterLib2: CounterLib;
+let counterLib = CounterLib();
+let counterLib2 = CounterLib();
 
 beforeEach(() => {
-  counterLib = new CounterLib();
-  counterLib2 = new CounterLib();
+  counterLib = CounterLib();
+  counterLib2 = CounterLib();
 });
 
 afterEach(cleanup);

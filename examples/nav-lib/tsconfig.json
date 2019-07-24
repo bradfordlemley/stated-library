@@ -1,20 +1,9 @@
 {
-  "include": ["src/**/*"],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.test.js",
-    "**/*.test.jsx",
-    "**/*.spec.ts",
-    "**/*.spec.tsx",
-    "**/*.spec.js",
-    "**/*.spec.jsx",
-    "**/node_modules/**"
-  ],
   "compilerOptions": {
-    "outDir": "dist",
+    "esModuleInterop": true,
     "jsx": "react",
     "moduleResolution": "node",
+    "outDir": "dist",
     "target": "ES2017"
   }
 }
