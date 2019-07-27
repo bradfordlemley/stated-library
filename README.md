@@ -1,5 +1,5 @@
 # :dart: Stated Libraries
-**An _Alternative_ to State Management**
+**The Alternative to "State Management" Libraries**
 
  [![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage] [![PRs welcome][prs-welcome-badge]][prs] [![License][license-badge]][license] ![Types][types-badge]
 
@@ -23,15 +23,134 @@
 
 [types-badge]: https://img.shields.io/npm/types/typescript.svg
 
-**The Problem:** The real purpose of "State Management" solutions, like Redux, is to implement functionality.  But, functionality doesn't fit cleanly into state, so "State Management" solutions end up inventing convoluted contraptions, like middleware, to achieve functionality.  And we end up developing application functionality using these convoluted contraptions, with our hands tied behind our backs.  It all requires extra brain cycles, extra code, extra time...sloooowing down development.
+A **Stated Library** is a regular javascript object that outputs its `state` in a standard _observable_ way.
 
-**The Solution:** Focus on implementing functionality, not managing state.  _Functionality naturally produces state_, no convoluted contraptions required.
+```js
+import createTodoStatedLib from './TodoLib';
 
-Stated Libraries are just regular objects that output state in a standard way.  A Stated Library is a self-contained module of functionality, independently developed and tested.  There are no limitations on what it can do or how it does it.  The standard state output allows libraries to be combined together in standard ways to create more complex functionality which also produces state in the same standard way.
+const todoLib = createTodoStatedLib();
+
+todoLib.state$.subscribe(state => console.log(`Got state: ${JSON.stringify(state)}`));
+// Got state: {todos: []}
+
+todoLib.addTodo('Drop Redux');
+// Got state: {todos: [{title: 'Drop Redux', completed: false, id: 1}]}
+
+todoLib.completeTodo(1);
+// Got state: {todos: [{title: 'Drop Redux', completed: true, id: 1}]}
+```
+
+Modular :white_check_mark:
+* Each **Stated Library** is a completely stand-alone, independent module of functionality.
+
+Easy :white_check_mark:
+* Since Stated Libraries are just regular javascript objects, there is virtually no learning curve.
+* There are **no limitations** on implementing async functionality or side effects -- no middleware, no nothing.
+* Co-located state/functionality/side effects makes them easy to reason about.
+* Fewer source files, no boilerplate.
+
+Testable :white_check_mark:, Debuggable :white_check_mark:, Platform-agnostic :white_check_mark:, Sensible :white_check_mark:, ...
+* Fully testable, independently -- no need to create a store, etc. -- fully test libraries directly.
+* Fewer source files === fewer test files === faster development + higher quality.
+* Time-travel debugging is supported using standard Redux DevTools.
+* Application logic can be developed and tested generically, independent of any application framework.
+
+Scalable :white_check_mark:, Composable :white_check_mark:
+* The `state` from _multiple_ **Stated Libraries** can be combined to create a new _observable_ `state`.
+* Multiple observable `state` can be combined to create a new _observable_ `state`.
+
+```js
+// state.js
+import { mapState } from '@stated-library/core';
+import createTodoStatedLib from './TodoLib';
+import createVisibilityStatedLib from './VisibilityLib';
+
+export const todoLib = createTodoStatedLib();
+export const visLib = createVisibilityStatedLib();
+
+export const visibleTodos$ = mapState(
+  [todoLib.state$, visLib.state$],
+  ([todoState, visState]) => {
+    switch (visState) {
+      case 'active':
+        return todoState.todos.filter(todo => !todo.completed);
+      case 'completed':
+        return todoState.todos.filter(todo => todo.completed);
+      default:
+        return todoState.todos;
+    }
+  }
+);
+
+// demo.js
+import { visLib, todoLib, visibleTodos$} from './state';
+
+visLib.state$.subscribe(state => console.log(`Got visLib state: ${JSON.stringify(state)}`));
+// Got visLib state: 'all'
+todoLib.state$.subscribe(state => console.log(`Got todoLib state: ${JSON.stringify(state)}`));
+// Got todoLib state: {todos: []}
+visibleTodos$.subscribe(state => console.log(`Got visible todos: ${JSON.stringify(state)}`));
+// Got visible todos: []
+
+todoLib.addTodo('Drop Redux');
+// Got todoLib state: {todos: [{title: 'Drop Redux', completed: false, id: 1}]}
+// Got visible todos: [{title: 'Drop Redux', completed: false, id: 1}]
+
+todoLib.completeTodo(1);
+// Got todoLib state: {todos: [{title: 'Drop Redux', completed: true, id: 1}]}
+// Got visible todos: [{title: 'Drop Redux', completed: true, id: 1}]
+
+visLib.setFilter('active');
+// Got visLib state: 'active'
+// Got visible todos: []
+
+visLib.setFilter('completed');
+// Got visLib state: 'completed'
+// Got visible todos: [{title: 'Drop Redux', completed: true, id: 1}]
+```
+
+React :white_check_mark:, Hooks :white_check_mark:, HOCs :white_check_mark:
+* Libraries and observable `state` can be used in React components.
+* Can be inject with hooks, HOC props (Redux-connect-like), or setState()
+
+```jsx
+// App.jsx
+import { use as useObservable } from '@stated-library/react';
+import Todo from './Todo';
+import { visibleTodos$, todoLib } from './state';
+
+export default () => {
+  const visibleTodos = useObservable(visibleTodos$);
+  return <div>
+    <button onClick={() => todoLib.addTodo('Another todo')}>Add todo</button>
+    <ul>
+      {visibleTodos.map(todo => <Todo key={todo.id} todo={todo}/>)}
+    </ul>
+  </div>
+}
+```
+
+## Rant
+**The Problem:** The real purpose of "State Management" solutions, like Redux, is to implement functionality.  But, functionality doesn't fit cleanly into state, so these solutions end up inventing convoluted contraptions, like middleware, to achieve functionality.  And we end up developing application functionality using these convoluted contraptions, with our hands tied behind our backs.  It all requires extra brain cycles, extra code, extra time...sloooowing down development.
+
+**The Solution:** _Functionality naturally produces state_, there are no convoluted contraptions required.  Stated Libraries are just regular objects that output state in a standard way.  A Stated Library is a self-contained module of functionality, independently developed and tested.  There are no limitations on what it can do or how it does it.  The standard state output allows libraries to be combined together in standard ways to create more complex functionality which also produces state in the same standard way.
 
 **The Benefits:** Stated Libraries are completely modular :package:, platform-agnostic :recycle:, easy to learn :dizzy:, fast to develop :rocket:, easy to test :trophy:, and easy to use :white_check_mark:.  This enables efficient development workflows and empowers us to develop higher-quality applications faster :dart:.
 
 Read more about the motivation and design process for `Stated Libraries` in: [Why State Management Is All Wrong](https://medium.com/@bradfordlemley/why-state-management-is-all-wrong-ca9f3bbde869?source=friends_link&sk=5e2d7de65bf45c46133db6c437bb9a1e).
+
+| Feature               | Redux                | Stated Libraries  |
+| -------------         |:-------------:       |:-------------:|
+| Easy to learn         |   :x:                | :white_check_mark: |
+| Easy to test          |   :x:                | :white_check_mark: |
+| Co-located logic / Easy to reason about  |   :x:                | :white_check_mark: |
+| LOC / No boilerplate  |   :x:                | :white_check_mark: |
+| Framework agnostic    |   :eggplant:          | :white_check_mark: |
+| Modular               |   :shit:             | :white_check_mark: |
+| Time-travel debugging |   :white_check_mark: | :white_check_mark: |
+| > Replay "actions"    |   :white_check_mark: | :x:  |
+| > Replay "state"      |   :x:                | :white_check_mark: |
+| Large community       |   :white_check_mark: | Needs your help |
 
 ## Background
 `Stated Libraries` are based on this View Framework architecture diagram:
