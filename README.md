@@ -144,13 +144,18 @@ Read more about the motivation and design process for `Stated Libraries` in: [Wh
 | Easy to learn         |   :x:                | :white_check_mark: |
 | Easy to test          |   :x:                | :white_check_mark: |
 | Co-located logic / Easy to reason about  |   :x:                | :white_check_mark: |
-| LOC / No boilerplate  |   :x:                | :white_check_mark: |
+| SLOC / No boilerplate |   :x:                | :white_check_mark: |
 | Framework agnostic    |   :eggplant:          | :white_check_mark: |
 | Modular               |   :shit:             | :white_check_mark: |
 | Time-travel debugging |   :white_check_mark: | :white_check_mark: |
 | > Replay "actions"    |   :white_check_mark: | :x:  |
 | > Replay "state"      |   :x:                | :white_check_mark: |
 | Large community       |   :white_check_mark: | Needs your help |
+
+I've started porting examples into Stated Libraries:
+* https://github.com/bradfordlemley/redux/tree/slib/examples/todomvc
+
+I'd like to come up with some metrics for comparison...SLOC
 
 ## Background
 `Stated Libraries` are based on this View Framework architecture diagram:
