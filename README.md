@@ -1,5 +1,5 @@
 # :dart: Stated Libraries
-**The Alternative to "State Management" Libraries**
+**The Alternative to "State Management"**
 
  [![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage] [![PRs welcome][prs-welcome-badge]][prs] [![License][license-badge]][license] ![Types][types-badge]
 
@@ -26,47 +26,30 @@
 A **Stated Library** is a regular javascript object that outputs its `state` in a standard _observable_ way.
 
 ```js
-import createTodoStatedLib from './TodoLib';
+import createTodoLib from './TodoLib';
 
-const todoLib = createTodoStatedLib();
+const todoLib = createTodoLib();
 
-todoLib.state$.subscribe(state => console.log(`Got state: ${JSON.stringify(state)}`));
-// Got state: {todos: []}
+todoLib.state$.subscribe(state => console.log(`Got todoLib state: ${JSON.stringify(state)}`));
+// Got todoLib state: {todos: [], isFetching: false}
 
 todoLib.addTodo('Drop Redux');
-// Got state: {todos: [{title: 'Drop Redux', completed: false, id: 1}]}
+// Got todoLib state: {todos: [{title: 'Drop Redux', completed: false, id: 1}], isFetching: false}
 
 todoLib.completeTodo(1);
-// Got state: {todos: [{title: 'Drop Redux', completed: true, id: 1}]}
+// Got todoLib state: {todos: [{title: 'Drop Redux', completed: true, id: 1}], isFetching: false}
 ```
 
-Modular :white_check_mark:
-* Each **Stated Library** is a completely stand-alone, independent module of functionality.
-
-Easy :white_check_mark:
-* Since Stated Libraries are just regular javascript objects, there is virtually no learning curve.
-* There are **no limitations** on implementing async functionality or side effects -- no middleware, no nothing.
-* Co-located state/functionality/side effects makes them easy to reason about.
-* Fewer source files, no boilerplate.
-
-Testable :white_check_mark:, Debuggable :white_check_mark:, Platform-agnostic :white_check_mark:, Sensible :white_check_mark:, ...
-* Fully testable, independently -- no need to create a store, etc. -- fully test libraries directly.
-* Fewer source files === fewer test files === faster development + higher quality.
-* Time-travel debugging is supported using standard Redux DevTools.
-* Application logic can be developed and tested generically, independent of any application framework.
-
-Scalable :white_check_mark:, Composable :white_check_mark:
-* The `state` from _multiple_ **Stated Libraries** can be combined to create a new _observable_ `state`.
-* Multiple observable `state` can be combined to create a new _observable_ `state`.
+Each **Stated Library** is a completely stand-alone, independent module of functionality.  The observable `state` from _multiple_ **Stated Libraries** can be combined to create a new _observable_ `state`.
 
 ```js
 // state.js
 import { mapState } from '@stated-library/core';
-import createTodoStatedLib from './TodoLib';
-import createVisibilityStatedLib from './VisibilityLib';
+import createTodoLib from './TodoLib';
+import createVisibilityLib from './VisibilityLib';
 
-export const todoLib = createTodoStatedLib();
-export const visLib = createVisibilityStatedLib();
+export const todoLib = createTodoLib();
+export const visLib = createVisibilityLib();
 
 export const visibleTodos$ = mapState(
   [todoLib.state$, visLib.state$],
@@ -82,37 +65,32 @@ export const visibleTodos$ = mapState(
   }
 );
 
-// demo.js
-import { visLib, todoLib, visibleTodos$} from './state';
-
+// ...demo...
 visLib.state$.subscribe(state => console.log(`Got visLib state: ${JSON.stringify(state)}`));
 // Got visLib state: 'all'
-todoLib.state$.subscribe(state => console.log(`Got todoLib state: ${JSON.stringify(state)}`));
-// Got todoLib state: {todos: []}
 visibleTodos$.subscribe(state => console.log(`Got visible todos: ${JSON.stringify(state)}`));
 // Got visible todos: []
 
 todoLib.addTodo('Drop Redux');
-// Got todoLib state: {todos: [{title: 'Drop Redux', completed: false, id: 1}]}
 // Got visible todos: [{title: 'Drop Redux', completed: false, id: 1}]
-
-todoLib.completeTodo(1);
-// Got todoLib state: {todos: [{title: 'Drop Redux', completed: true, id: 1}]}
-// Got visible todos: [{title: 'Drop Redux', completed: true, id: 1}]
-
-visLib.setFilter('active');
-// Got visLib state: 'active'
-// Got visible todos: []
 
 visLib.setFilter('completed');
 // Got visLib state: 'completed'
+// Got visible todos: []
+
+todoLib.completeTodo(1);
 // Got visible todos: [{title: 'Drop Redux', completed: true, id: 1}]
 ```
+Observable `state` is composable.  This means that _any_ observable `state` can be used to create new observable `state`.
+```js
+// ...
+const matchingTodos$ = mapState(
+  [visibleTodos$, searchText$],
+  ([visibleTodos, searchText]) => visibleTodos.filter(todo => todo.title.includes(searchText))
+);
+```
 
-React :white_check_mark:, Hooks :white_check_mark:, HOCs :white_check_mark:
-* Libraries and observable `state` can be used in React components.
-* Can be inject with hooks, HOC props (Redux-connect-like), or setState()
-
+**Stated Libraries** are completely platform-agnostic, but are easy to use in application frameworks like React.  There is no global store, no context.
 ```jsx
 // App.jsx
 import { use as useObservable } from '@stated-library/react';
@@ -130,6 +108,128 @@ export default () => {
 }
 ```
 
+**Stated Libraries** are very easy to implement.  Since they are just regular javascript objects, there is virtually **no learning curve**.  All state updates, async functionality, and side effects are **co-located**. There no limitations on side effects.  No store to hook up, no middleware, no boilerplate.
+
+```js
+// TodoLib.js
+import { createStatedLib } from '@stated-library/base';
+
+let id = 0;
+
+export default () => createStatedLib(
+  // initial state
+  {
+    todos: [],
+    isFetching: false,
+  },
+  // create methods
+  base => ({
+
+    addTodo(text) {
+      base.updateState(
+        {
+          todos: base.state.todos.concat({ title, completed: false, ++id }),
+        },
+        'ADD_TODO'
+      );
+    },
+
+    completeTodo(id) {
+      base.updateState(
+        {
+          todos: base.state.todos.map(todo => todo.id === id ? { ...todo, completed: true } : todo),
+        },
+        'COMPLETE_TODO'
+      );
+    },
+
+    async fetchTodos() {
+      base.updateState({ isFetching: true }, 'START_FETCH_TODOS');
+      const fetchedTodos = await fetchTodos();
+      base.updateState(
+        {
+          todos: this.state.todos.concat(fetchedTodos),
+          isFetching: false,
+        },
+        'COMPLETE_FETCH_TODOS'
+      );
+    }
+
+  }),
+);
+```
+How much code to implement that with Redux?  Actions, reducer, store, middleware ... a lot.  And then, there's testing...how painful is that?
+
+Since **Stated Libraries** are self-contained, stand-alone entities, they are **very easy to test**:
+```js
+// TodoLib.test.js
+import TodoLib from './TodoLib';
+
+test('Initial state', () => {
+  const todoLib = TodoLib();
+  expect(todoLib.state.todos).toHaveLength(0);
+});
+
+test('Adds todo', () => {
+  const todoLib = TodoLib();
+  todoLib.addTodo('Drop Redux');
+  expect(todoLib.state.todos).toHaveLength(1);
+  expect(todoLib.state.todods[0]).toMatchObject({
+    title: 'Drop Redux',
+    completed: false,
+  });
+});
+
+test('Fetches todos', async () => {
+  const todoLib = TodoLib();
+  const fetchPromise = todoLib.fetchTodos();
+  expect(todoLib.state.isFetching).toBe(true);
+  await fetchPromise;
+  expect(todoLib.state.isFetching).toBe(false);
+  expect(todoLib.state.todos.length).toBeGreaterThan(0);
+});
+```
+
+The entirity of application logic can be easily tested outside any application framework:
+```js
+// state.test.js
+// reset state module for each test
+let state;
+beforeEach(() => {
+  jest.resetModules();
+  state = require('./state');
+});
+
+test('Visible Todos', () => {
+  const { todoLib, visLib, visibleTodos$ } = state;
+  todoLib.add('Drop Redux');
+  expect(visibleTodos$.value).toHaveLength(1);
+  visLib.setFilter('completed');
+  expect(visibleTodos$.value).toHaveLength(0);
+})
+```
+
+**Stated Libraries** are fully compatible with Redux DevTools and support time-travel debugging.  Each `state` change is accompanied by a `StateEvent` which contains a human-readable event description, e.g. 'ADD_TODO'.  The event description is akin to an action type in Redux, but its purpose is solely to provide extra debugging info indicating why the `state` changed.  The major difference from Redux is that **Stated Libraries** enable `state` to be recorded and replayed, not actions.  Additionally, any observable `state` can be displayed with Redux DevTools, not just library `state`.
+
+| Feature               | Redux                | Stated Libraries  |
+| -------------         |:-------------:       |:-------------:|
+| Easy to learn         |   :x:                | :white_check_mark: |
+| Easy to test          |   :x:                | :white_check_mark: |
+| Co-located logic / Easy to reason about  |   :x:                | :white_check_mark: |
+| Minimal SLOC / No boilerplate |   :x:                | :white_check_mark: |
+| Framework agnostic    |   :eggplant:          | :white_check_mark: |
+| Modularity               |   :shit:             | :white_check_mark: |
+| Time-travel debugging / Redux DevTools |   :white_check_mark: | :white_check_mark: |
+| > Replay "actions"    |   :white_check_mark: | :x:  |
+| > Replay "state"      |   :x:                | :white_check_mark: |
+| > Show any observable state    |   :x:                | :white_check_mark: |
+| Large community       |   :white_check_mark: | Needs your help |
+
+I've started porting examples into Stated Libraries.  Trying to keep these as apples-to-apples as possible.
+I'd like to come up with some metrics (SLOC, performance, etc.) for comparison, but currently you just have to use your :eyes:.
+
+* https://github.com/bradfordlemley/redux/tree/slib/examples/todomvc
+
 ## Rant
 **The Problem:** The real purpose of "State Management" solutions, like Redux, is to implement functionality.  But, functionality doesn't fit cleanly into state, so these solutions end up inventing convoluted contraptions, like middleware, to achieve functionality.  And we end up developing application functionality using these convoluted contraptions, with our hands tied behind our backs.  It all requires extra brain cycles, extra code, extra time...sloooowing down development.
 
@@ -139,96 +239,16 @@ export default () => {
 
 Read more about the motivation and design process for `Stated Libraries` in: [Why State Management Is All Wrong](https://medium.com/@bradfordlemley/why-state-management-is-all-wrong-ca9f3bbde869?source=friends_link&sk=5e2d7de65bf45c46133db6c437bb9a1e).
 
-| Feature               | Redux                | Stated Libraries  |
-| -------------         |:-------------:       |:-------------:|
-| Easy to learn         |   :x:                | :white_check_mark: |
-| Easy to test          |   :x:                | :white_check_mark: |
-| Co-located logic / Easy to reason about  |   :x:                | :white_check_mark: |
-| SLOC / No boilerplate |   :x:                | :white_check_mark: |
-| Framework agnostic    |   :eggplant:          | :white_check_mark: |
-| Modular               |   :shit:             | :white_check_mark: |
-| Time-travel debugging |   :white_check_mark: | :white_check_mark: |
-| > Replay "actions"    |   :white_check_mark: | :x:  |
-| > Replay "state"      |   :x:                | :white_check_mark: |
-| Large community       |   :white_check_mark: | Needs your help |
-
-I've started porting examples into Stated Libraries:
-* https://github.com/bradfordlemley/redux/tree/slib/examples/todomvc
-
-I'd like to come up with some metrics for comparison...SLOC
 
 ## Background
 `Stated Libraries` are based on this View Framework architecture diagram:
 
 <img src="./assets/view-framework.png">
 
-Key Points:
+#### Key Points
 * Functionality outputs State
 * Functionality is independent of View
 * Data flow is unidirectional
-
-## Design
-`Stated Libraries` are designed around the Key Points above, and additionally for modularity, following the [unix philosophy](https://en.wikipedia.org/wiki/Unix_philosophy).
-
-<img src="./assets/stated-libraries-single.png">
-
-<style>
-.nowrap {
-  white-space: nowrap;
-}
-</style>
-There are four components in the design:
-
-| Component         | Symbol          | Description  | Implemented By | View Framework Agnostic |
-| -------------     |:-------------:| -----|:-----|:-----:|
-| <span class="nowrap">Stated Library</span>  | <img src="./assets/stated-library.png" style="height: 24px"> | A module that implements functionality and outputs state. | <span style="white-space: nowrap">You + [@stated-library/base](#@stated-library/base)</span>| :white_check_mark:
-| <span class="nowrap">View Module</span>      | <img src="./assets/view-module.png" style="height: 24px">    | A view module in a view framework. | You + view framework
-| <span class="nowrap">State Operator</span>   | <img src="./assets/operator.png" style="height: 24px">       | An object that transforms & combines state. | <span class="nowrap">[@stated-library/core](#@stated-library/core)</span> | :white_check_mark:
-| <span class="nowrap">Framework Binding</span>| <img src="./assets/binding-symbol.png" style="height: 24px"> | Converts standard state output to view-framework-specific state input. | <span class="nowrap">[@stated-library/react](#@stated-library/react),<br/>@stated-library/{view-fmk}</span>
-
-The <img src="./assets/observable.png" style="height: 24px"> symbol represents **observable state**, the mechanism used throughout the system to output state.  This standard state output mechanism is the key to making all of the components fit together, allowing components to be added into the system seamlessly.
-
-A **Stated Library** is an object that takes input using regular object methods and outputs observable state.
-
-__Observable_ and _operator_ are reactive programming terms.  _Reactive Programming is the practice of operating on pushed data_, and that is exactly what is happening in `Stated Libraries`, where the pushed data is _state_._
-
-State operators form a layer of **state composition** that sits between Stated Library Functionality Modules and View Modules, transforming and combining state outputs to meet the input requirements of View Modules.  The state composition layer allows functionality modules to be combined seamlessly, allowing multiple functionality modules to appear as one.
-
-<img src="./assets/stated-libraries-multiple-funcs.png">
-
-Multiple view modules can be supported by composing state for each view module:
-
-<img src="./assets/stated-libraries-multiple.png">
-
-### Anatomy of a Stated Library
-A Stated Library is a regular object that implements standard Stated Library properties.
-
-In addition to standard state output, Stated Libraries implement other properties that enable standard tooling.
-
-<img src="./assets/anatomy.png">
-
-| Property      | Symbol        | Type | Description  | Enables Tooling |
-| ------------- |:-------------:|:----- | -----        | :----: |
-| `state`       |  | State | Library's current state. |
-| `state$`      | <img src="./assets/observable.png" style="height: 24px"> | Observable\<State\> | Emits a State each time the library's state changes. |
-| methods |  | (any) => any | Library-specific input methods. |
-| `stateEvent$` | <img src="./assets/state-event-observable.png" style="height: 24px"> | Observable\<StateEvent\> | Emits a StateEvent for each event affecting state.| :white_check_mark:
-| `resetState`  | <img src="./assets/reset-state-symbol.png" style="height: 24px"> | (State) => void | Sets library state. | :white_check_mark:
-
-A `StateEvent` includes additional information that is useful for tooling:
-
-| Property      | Type   | Description  |
-| ------------- |:------:|:----- |
-| `state`       | State  | The library's new state.    |
-| `rawState`    | State  | The library's raw state, does not contain derived state. |
-| `reason`      | string | Human-readable reason for state change. |
-| `meta`        | any    | Event-specific data.  |
-
-Generally, `state$` emits a State each time `stateEvent$` emits a StateEvent; however, it is possible that an event will not affect state, in which case `stateEvent$` would emit a StateEvent, but `state$` would not emit a State.
-
-The `resetState` method is used by tooling that hydrates state: e.g. SSR, DevTools, etc.
-
-All of the standard Stated Library properties are officially defined by the [Stated Library Interface](#statedlibraryinterface).
 
 ## Getting Started
 ### Implementing a Stated Library
@@ -1126,3 +1146,66 @@ Almost everything in `Stated Libraries` is informed by, borrowed from, or outrig
 - inability to implement complex functionality without strange dependencies on external middleware
 - inability to create self-contained modules
 - effort required to test all of the above
+
+## Design
+`Stated Libraries` are designed around the [Key Points](#key-points) above, and additionally for modularity, following the [unix philosophy](https://en.wikipedia.org/wiki/Unix_philosophy).
+
+<img src="./assets/stated-libraries-single.png">
+
+<style>
+.nowrap {
+  white-space: nowrap;
+}
+</style>
+There are four components in the design:
+
+| Component         | Symbol          | Description  | Implemented By | View Framework Agnostic |
+| -------------     |:-------------:| -----|:-----|:-----:|
+| <span class="nowrap">Stated Library</span>  | <img src="./assets/stated-library.png" style="height: 24px"> | A module that implements functionality and outputs state. | <span style="white-space: nowrap">You + [@stated-library/base](#@stated-library/base)</span>| :white_check_mark:
+| <span class="nowrap">View Module</span>      | <img src="./assets/view-module.png" style="height: 24px">    | A view module in a view framework. | You + view framework
+| <span class="nowrap">State Operator</span>   | <img src="./assets/operator.png" style="height: 24px">       | An object that transforms & combines state. | <span class="nowrap">[@stated-library/core](#@stated-library/core)</span> | :white_check_mark:
+| <span class="nowrap">Framework Binding</span>| <img src="./assets/binding-symbol.png" style="height: 24px"> | Converts standard state output to view-framework-specific state input. | <span class="nowrap">[@stated-library/react](#@stated-library/react),<br/>@stated-library/{view-fmk}</span>
+
+The <img src="./assets/observable.png" style="height: 24px"> symbol represents **observable state**, the mechanism used throughout the system to output state.  This standard state output mechanism is the key to making all of the components fit together, allowing components to be added into the system seamlessly.
+
+A **Stated Library** is an object that takes input using regular object methods and outputs observable state.
+
+__Observable_ and _operator_ are reactive programming terms.  _Reactive Programming is the practice of operating on pushed data_, and that is exactly what is happening in `Stated Libraries`, where the pushed data is _state_._
+
+State operators form a layer of **state composition** that sits between Stated Library Functionality Modules and View Modules, transforming and combining state outputs to meet the input requirements of View Modules.  The state composition layer allows functionality modules to be combined seamlessly, allowing multiple functionality modules to appear as one.
+
+<img src="./assets/stated-libraries-multiple-funcs.png">
+
+Multiple view modules can be supported by composing state for each view module:
+
+<img src="./assets/stated-libraries-multiple.png">
+
+### Anatomy of a Stated Library
+A Stated Library is a regular object that implements standard Stated Library properties.
+
+In addition to standard state output, Stated Libraries implement other properties that enable standard tooling.
+
+<img src="./assets/anatomy.png">
+
+| Property      | Symbol        | Type | Description  | Enables Tooling |
+| ------------- |:-------------:|:----- | -----        | :----: |
+| `state`       |  | State | Library's current state. |
+| `state$`      | <img src="./assets/observable.png" style="height: 24px"> | Observable\<State\> | Emits a State each time the library's state changes. |
+| methods |  | (any) => any | Library-specific input methods. |
+| `stateEvent$` | <img src="./assets/state-event-observable.png" style="height: 24px"> | Observable\<StateEvent\> | Emits a StateEvent for each event affecting state.| :white_check_mark:
+| `resetState`  | <img src="./assets/reset-state-symbol.png" style="height: 24px"> | (State) => void | Sets library state. | :white_check_mark:
+
+A `StateEvent` includes additional information that is useful for tooling:
+
+| Property      | Type   | Description  |
+| ------------- |:------:|:----- |
+| `state`       | State  | The library's new state.    |
+| `rawState`    | State  | The library's raw state, does not contain derived state. |
+| `reason`      | string | Human-readable reason for state change. |
+| `meta`        | any    | Event-specific data.  |
+
+Generally, `state$` emits a State each time `stateEvent$` emits a StateEvent; however, it is possible that an event will not affect state, in which case `stateEvent$` would emit a StateEvent, but `state$` would not emit a State.
+
+The `resetState` method is used by tooling that hydrates state: e.g. SSR, DevTools, etc.
+
+All of the standard Stated Library properties are officially defined by the [Stated Library Interface](#statedlibraryinterface).
