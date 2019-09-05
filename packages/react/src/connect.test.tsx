@@ -14,13 +14,13 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-type Props = {
+type CounterProps = {
   counter: number;
   increment: () => void;
   decrement: () => void;
 };
 
-const Counter: React.ComponentType<Props> = ({
+const Counter: React.ComponentType<CounterProps> = ({
   counter,
   increment,
   decrement,
@@ -32,7 +32,7 @@ const Counter: React.ComponentType<Props> = ({
   </div>
 );
 
-class StatefulCounter extends React.Component<Props> {
+class StatefulCounter extends React.Component<CounterProps> {
   // static displayName = "Stateful-Counter";
   render() {
     const { increment, decrement, counter } = this.props;
@@ -48,6 +48,28 @@ class StatefulCounter extends React.Component<Props> {
 
 test('Single counter without mapState', () => {
   const CounterComp = connect(counterLib.state$)(Counter);
+  const { getByTestId, getByText } = render(
+    <CounterComp
+      increment={() => counterLib.increment()}
+      decrement={() => counterLib.decrement()}
+    />
+  );
+  expect(getByTestId('count-value').textContent).toBe('0');
+  fireEvent.click(getByText('+'));
+  expect(getByTestId('count-value').textContent).toBe('1');
+});
+
+test('Extra ', () => {
+  const Counter2: React.ComponentType<CounterProps & {counter2: number}> = props =>
+    <div></div>
+
+  const props$ = mapState(counterLib.state$,
+    state => ({
+      ...state,
+      counter2: state.counter * 2,
+    }))
+  
+  const CounterComp = connect(props$)(Counter2);
   const { getByTestId, getByText } = render(
     <CounterComp
       increment={() => counterLib.increment()}
@@ -170,4 +192,35 @@ test('Two counters with mapState', () => {
   expect(getByTestId('count-value').textContent).toBe('1');
   expect(getByTestId('count2-value').textContent).toBe('0');
   expect(getByTestId('total-value').textContent).toBe('1');
+});
+
+/*
+<PresComp>
+  <Child1 />
+  <Child2 />
+</PresComp>
+*/
+
+test('State derived from props', () => {
+  const PresComp:React.FunctionComponent<{injectProp: number, passthruProp: string}> = (props) => 
+    <>
+      <div data-testid="injectProp">{props.injectProp}</div>
+      <div data-testid="passthruProp">{props.passthruProp}</div>
+      {props.children}
+    </>
+  const Comp = connect(props$ => 
+    mapState(props$,
+      props => ({injectProp: props.hocProp * 2})
+    ))
+    (PresComp);
+  const { getByTestId, getByText } = render(
+    <Comp hocProp={2} passthruProp={"hi"}>
+      <div data-testid="child1">Child</div>
+    </Comp>
+  );
+  expect(getByTestId('injectProp').textContent).toBe('4');
+  expect(getByTestId('passthruProp').textContent).toBe('hi');
+  expect(getByTestId('child1').textContent).toBe('Child');
+  // fireEvent.click(getByText('+'));
+  // expect(getByTestId('count-value').textContent).toBe('1');
 });
