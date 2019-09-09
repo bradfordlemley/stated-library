@@ -17,9 +17,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "yarn validate-types && unfig build",
+    "build": "unfig build && npm run validate-types",
     "start": "unfig start",
-    "test": "unfig test && yarn validate-types",
+    "test": "npm run build && unfig test",
     "validate-types": "dtslint --localTs ../../node_modules/typescript/lib --expectOnly type-check"
   },
   "typings": "dist/index.d.ts",
