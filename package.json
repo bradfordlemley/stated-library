@@ -31,5 +31,8 @@
     ]
   },
   "private": true,
-  "name": "@stated-library/root"
+  "name": "@stated-library/root",
+  "dependencies": {
+    "typescript": "^3.4"
+  }
 }
