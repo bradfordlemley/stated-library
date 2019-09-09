@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Observable } from '@stated-library/interface';
-import linkObservable from './link';
 import getDisplayName from './getDisplayName';
-import { use, useValueAs$ } from '.';
+import use from './use';
+import useValueAs$ from './useValueAsObservable';
 
 export type OmitCommon<T, K> = Pick<T, Exclude<keyof T, keyof K>>;
 
