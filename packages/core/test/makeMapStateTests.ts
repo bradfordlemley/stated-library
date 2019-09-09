@@ -1,4 +1,11 @@
-export default function makeMapStateTests(mapState, createObs, isRxJs = false) {
+import MapState from '../src/mapState';
+import CreateObs from '../src/observable';
+
+export default function makeMapStateTests(
+  mapState: typeof MapState,
+  createObs: typeof CreateObs,
+  isRxJs = false
+) {
   let subs = [];
   beforeEach(() => (subs = []));
   afterEach(() => subs.map(sub => sub.unsubscribe()));
@@ -151,9 +158,10 @@ export default function makeMapStateTests(mapState, createObs, isRxJs = false) {
       const mapped$ = mapState([state1$, state2$], ([state1, state2]) => ({
         counter: state1.counter + state2.counter,
       }));
-
+      // @ts-ignore
       expect(mapped$.value).toEqual({ counter: 101 });
       state1$.next({ counter: 4 });
+      // @ts-ignore
       expect(mapped$.value).toEqual({ counter: 104 });
     });
 
@@ -165,8 +173,10 @@ export default function makeMapStateTests(mapState, createObs, isRxJs = false) {
       }));
       const subscriber = jest.fn();
       subs.push(mapped$.subscribe(subscriber));
+      // @ts-ignore
       expect(mapped$.value).toEqual({ counter: 101 });
       state1$.next({ counter: 4 });
+      // @ts-ignore
       expect(mapped$.value).toEqual({ counter: 104 });
     });
 
@@ -179,6 +189,7 @@ export default function makeMapStateTests(mapState, createObs, isRxJs = false) {
         ([plus10, plus100]) => ({
           counter: plus10 + plus100,
         }),
+        // @ts-ignore
         { async: true }
       );
 

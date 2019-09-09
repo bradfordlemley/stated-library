@@ -3,6 +3,7 @@ import connect from './connect';
 import CounterLib from '@stated-library/counter-lib';
 import { render, fireEvent, cleanup } from 'react-testing-library';
 import { mapState } from '@stated-library/core';
+import { Observable } from '@stated-library/interface';
 
 let counterLib = CounterLib();
 let counterLib2 = CounterLib();
@@ -46,7 +47,7 @@ class StatefulCounter extends React.Component<CounterProps> {
   }
 }
 
-test('Single counter without mapState', () => {
+test('Injects library state and passthru props', () => {
   const CounterComp = connect(counterLib.state$)(Counter);
   const { getByTestId, getByText } = render(
     <CounterComp
@@ -59,29 +60,7 @@ test('Single counter without mapState', () => {
   expect(getByTestId('count-value').textContent).toBe('1');
 });
 
-test('Extra ', () => {
-  const Counter2: React.ComponentType<CounterProps & {counter2: number}> = props =>
-    <div></div>
-
-  const props$ = mapState(counterLib.state$,
-    state => ({
-      ...state,
-      counter2: state.counter * 2,
-    }))
-  
-  const CounterComp = connect(props$)(Counter2);
-  const { getByTestId, getByText } = render(
-    <CounterComp
-      increment={() => counterLib.increment()}
-      decrement={() => counterLib.decrement()}
-    />
-  );
-  expect(getByTestId('count-value').textContent).toBe('0');
-  fireEvent.click(getByText('+'));
-  expect(getByTestId('count-value').textContent).toBe('1');
-});
-
-test('Single counter map only counter', () => {
+test('Injects mapped library state and passthru props', () => {
   const prop$ = mapState(counterLib.state$, ({ counter }) => ({
     counter,
   }));
@@ -97,7 +76,7 @@ test('Single counter map only counter', () => {
   expect(getByTestId('count-value').textContent).toBe('1');
 });
 
-test('Single counter map all', () => {
+test('Injects mapped state that contains all required props', () => {
   const prop$ = mapState(counterLib.state$, ({ counter }) => ({
     counter,
     increment: () => counterLib.increment(),
@@ -110,7 +89,7 @@ test('Single counter map all', () => {
   expect(getByTestId('count-value').textContent).toBe('1');
 });
 
-test('Works with stateful component', () => {
+test('Works with class component', () => {
   const prop$ = mapState(counterLib.state$, ({ counter }) => ({
     counter,
     increment: () => counterLib.increment(),
@@ -194,33 +173,26 @@ test('Two counters with mapState', () => {
   expect(getByTestId('total-value').textContent).toBe('1');
 });
 
-/*
-<PresComp>
-  <Child1 />
-  <Child2 />
-</PresComp>
-*/
-
-test('State derived from props', () => {
-  const PresComp:React.FunctionComponent<{injectProp: number, passthruProp: string}> = (props) => 
+test('Hoc uses own props to generate injected props', () => {
+  const PresComp: React.FunctionComponent<{
+    injectProp: number;
+    passthruProp: string;
+  }> = props => (
     <>
       <div data-testid="injectProp">{props.injectProp}</div>
       <div data-testid="passthruProp">{props.passthruProp}</div>
       {props.children}
     </>
-  const Comp = connect(props$ => 
-    mapState(props$,
-      props => ({injectProp: props.hocProp * 2})
-    ))
-    (PresComp);
-  const { getByTestId, getByText } = render(
-    <Comp hocProp={2} passthruProp={"hi"}>
-      <div data-testid="child1">Child</div>
-    </Comp>
+  );
+  const Hoc = connect((props$: Observable<{ hocProp: number }>) =>
+    mapState(props$, props => ({ injectProp: props.hocProp * 2 }))
+  )(PresComp);
+  const { getByTestId } = render(
+    <Hoc hocProp={2} passthruProp={'passthru-value'}>
+      <div data-testid="child">Child</div>
+    </Hoc>
   );
   expect(getByTestId('injectProp').textContent).toBe('4');
-  expect(getByTestId('passthruProp').textContent).toBe('hi');
-  expect(getByTestId('child1').textContent).toBe('Child');
-  // fireEvent.click(getByText('+'));
-  // expect(getByTestId('count-value').textContent).toBe('1');
+  expect(getByTestId('passthruProp').textContent).toBe('passthru-value');
+  expect(getByTestId('child').textContent).toBe('Child');
 });
