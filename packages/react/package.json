@@ -36,6 +36,7 @@
     "@babel/preset-flow": "7.0.0",
     "@babel/preset-react": "7.0.0",
     "@babel/preset-typescript": "7.1.0",
+    "@stated-library/counter-lib": "1.0.6",
     "@types/node": "^11.13.4",
     "@unfig/toolkit-react-comp": "0.0.9",
     "babel-core": "7.0.0-bridge.0",
