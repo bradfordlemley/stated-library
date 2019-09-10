@@ -590,6 +590,37 @@ export default function createTodoLib() {
 
 ```
 
+## Using Component Props for Derived State
+A component's props can converted into an observable `props$` and then used like any observable.
+```jsx
+import { useValueAs$ } from '@stated-library/react';
+
+const MyComp = ({ itemId }) => {
+  const props$ = useValueAs$(props);
+  const item = use(() => mapState(
+    [props$, itemsLib.state$],
+    ([props,  itemsLibState]) => itemsLibState.items[prop.itemId]
+  );
+  return <div>{item.desc}</div>
+}
+```
+
+This is also supported with `connect`:
+```jsx
+import { mapState } from '@stated-library/core';
+import { connect } from '@stated-library/react';
+
+const ItemPres = ({ item }) =>
+  <div>{item.desc}</div>
+
+const ItemContainer = connect(props$ =>
+  mapState(
+    [props$, itemsLib.state$],
+    ([props,  itemsLibState]) => ({item: itemsLibState.items[prop.itemId]})
+  ))
+  (ItemPres);
+```
+
 ## Business Logic
 Business logic, or "glue" logic, is a layer of functionality that ties together independent functionality modules.  For example, a method in ModuleA may need to be invoked when some event or state occurs in ModuleB.  Stated Libraries can support dedicated methods to enable interactions between modules, but it is also possible to achieve such interactions generically by monitoring `state$` and/or `stateEvent$`.
 
@@ -1051,6 +1082,21 @@ const appState$ = mapState(
 export default connect(appState$)(App);
 ```
 
+A second form of connect allows state to be calculated using the Hoc's props; for react-redux, this is like using ownProps for mapStateToProps.
+
+* `connect(props$ => state$)(component) => HOC`
+```jsx
+const ItemPres = ({ item }) =>
+  <div>{item.desc}</div>
+
+const ItemContainer = connect(props$ =>
+  mapState(
+    [props$, itemsLib.state$],
+    ([props,  itemsLibState]) => ({item: itemsLibState.items[prop.itemId]})
+  ))
+  (ItemPres);
+```
+
 ### Direct Injection
 
 **Direct injection** means that `state$` will be a part of the component's `state` rather than being provided to the component as props (via an HOC).  The benefit of direct injection is that there is no extra component in the React component tree.
@@ -1088,8 +1134,24 @@ export default () => {
     </div>
   );
 };
-
 ```
+
+### useValueAs$(value)
+**`useValueAs$`** converts a value into an observable which can then be composed with other observables.  This is really only useful for converting props to props$.
+
+```jsx
+import { useValueAs$ } from '@stated-library/react';
+
+const MyComp = ({ itemId }) => {
+  const props$ = useValueAs$(props);
+  const item = use(() => mapState(
+    [props$, itemsLib.state$],
+    ([props,  itemsLibState]) => itemsLibState.items[prop.itemId]
+  );
+  return <div>{item.desc}</div>
+}
+```
+
 ### link
 **`link`** is the direct injection mechanism for stateful class components.  It spreads the observable's value onto the component's `state` by calling the component's `setState` method whenever the observable emits a new value.  `link` follows the standard life-cycle [subscription mechanism](https://reactjs.org/docs/react-component.html#componentdidmount).
 

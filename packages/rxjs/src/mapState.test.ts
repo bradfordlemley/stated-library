@@ -9,8 +9,10 @@ import makeMapStateTests from '../../core/test/makeMapStateTests';
 
 import { BehaviorSubject } from 'rxjs';
 
+// @ts-ignore
 makeMapStateTests(mapState, value => new BehaviorSubject(value), true);
 
 makeMapStateTests(mapState, createObservable, true);
 
+// @ts-ignore
 makeMapStateTests(coreMapState, value => new BehaviorSubject(value), true);
