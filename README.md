@@ -25,9 +25,7 @@
 
 # Overview
 
-Stated Libraries are based on **_observable_ state** -- listeners can subscribe to a library's state.
-
-A Stated Library's state is changed by calling a library method, resulting in **unidirectional data flow**.
+Stated Libraries are based on **observable state** -- listeners subscribe to library state.  Library state is changed by calling a library method, resulting in **unidirectional data flow**.
 
 Here's a quick demonstration of the concepts:
 ```js
@@ -39,7 +37,7 @@ todoLib.completeTodo(1);
 // out: State is {todos: [{title: 'Drop Redux', completed: true, id: 1}], isFetching: false}
 ```
 
-Each Stated Library is a completely standalone module, developed and tested independently.  Stated Libraries can perform *async functionality* and cause *side effects*.  No boilerplate, no restrictions, no middleware.
+A Stated Library is a completely standalone module, developed and tested independently.  Stated Libraries can perform *async functionality* and *cause side effects*.  No boilerplate, no restrictions, no middleware.
 
 ## Using Stated Libraries
 Stated Libraries are application-framework-agnostic.  Observable state is a generic mechanism and can be interfaced to any application framework update mechanism; for example, a React hook.
@@ -60,7 +58,9 @@ const TodoApp = () => {
 ```
 
 ## Using Multiple Stated Libraries
-Obserservable state is **_composable_** and **_reactive_.**  Observable states can be combined together to produce a new observable state.  Stated Libraries supports a `mapState` function for composing observable state.
+Obserservable state is **composable** and **reactive**.  Observable states can be combined together to produce a new observable state.
+
+Stated Libraries supports a `mapState` function for composing observable state.
 
 > In reactive programming, functions that takes observable(s) as input and create a new observable are called **reactive operators**.  `mapState` is a reactive operator.  Reactive programming frameworks like RxJS include many reactive operators. `mapState` is the only reactive operator included with Stated Libraries and probably the only operator you'll need.
 
