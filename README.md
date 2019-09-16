@@ -195,7 +195,10 @@ test('Fetches todos', async () => {
 ## Why Use Stated Libraries?
 Ultimately Stated Libraries helps you develop high-quality, well-tested applications more quickly than other solutions.  This is mainly because Stated Libraries are easy and fast to develop and test, are truly modular, and are easy to integrate and test together.
 
-Read more about the motivation and design process for `Stated Libraries` in: [Why State Management Is All Wrong](https://medium.com/@bradfordlemley/why-state-management-is-all-wrong-ca9f3bbde869?source=friends_link&sk=5e2d7de65bf45c46133db6c437bb9a1e).
+Read more about the motivation and design process for `Stated Libraries` in:
+* [Observable State: The Untapped Composable State Solution for React](https://medium.com/@bradfordlemley/observable-state-feac950850b?sk=62f0d6cf7842ca32513fceb205b3c933)
+* [Why State Management Is All Wrong](https://medium.com/@bradfordlemley/why-state-management-is-all-wrong-ca9f3bbde869?source=friends_link&sk=5e2d7de65bf45c46133db6c437bb9a1e)
+
 
 | Feature               | Stated<br/>Libraries | Redux             |
 | -------------         |:-------------:       |:-------------:|
