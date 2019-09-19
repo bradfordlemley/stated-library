@@ -823,15 +823,15 @@ Stated Libraries consists of several packages:
 
 | Package        | Description           | Contains           |
 | ------------- |:-------------|:-------------|
-| [<span class="nowrap">@stated-library/interface</span>](#@stated-library/interface) | Stated Library Interface defintion (typescript). | [`StatedLibraryInterface`](#stated-library-interface) |
+| [<span class="nowrap">@stated-library/interface</span>](#@stated-library/interface) | Stated Library Interface defintion (typescript). | [`StatedLibrary`](#stated-library-interface) |
 | [@stated-library/core](#@stated-library/interface)      | View-framework agnostic.  Observable, operators, and tooling. | [`createObservable`](#createobservable), [`mapState`](#mapstate)<br/>Tooling: [`devTools`](#devtools), [`locStore`](#locstore) |
 | [@stated-library/base](#@stated-library/base)           | Stated Library base implementations. | [`createStatedLib`](#createstatedlibrary), [`StatedLibBase`](#statedlibbase)      |
 | [@stated-library/react](#@stated-library/react)         | React bindings. | [`connect`](#connect), [`use`](#use), [`link`](#link)         |
 
 # API
 ## @stated-library/interface
-### StatedLibraryInterface
-All Stated Libraries implement the `StatedLibraryInterface`:
+### StatedLibrary
+All Stated Libraries implement the `StatedLibrary`:
 ```ts
 type StateEvent<RawState, State, Meta> = {
   event: string,
@@ -840,7 +840,7 @@ type StateEvent<RawState, State, Meta> = {
   state: State,
 }
 
-interface StatedLibraryInterface<RawState, State, Meta> {
+interface StatedLibrary<RawState, State, Meta> {
   state: State,
   state$: Observable<State>,
   stateEvent$: Observable<StateEvent<RawState, State, Meta>>,
@@ -867,7 +867,7 @@ The "inputs" to Stated Libraries are library-specific methods; in other words, a
 
 Because all Stated Libraries implement the same interface, **the tooling around them is _generic_** and you **might not ever** need to work with the `Stated Library Interface` directly.
 
-It doesn't matter how a `Stated Library` is implemented -- as long as it implements the `StatedLibraryInterface`, it will work as a `Stated Library`.
+It doesn't matter how a `Stated Library` is implemented -- as long as it implements the `StatedLibrary`, it will work as a `Stated Library`.
 
 ## @stated-library/core
 ### createObservable

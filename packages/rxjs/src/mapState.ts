@@ -3,11 +3,11 @@ import { distinctUntilChanged, map } from 'rxjs/operators';
 import { isArray, shallowEqual } from '@stated-library/core';
 import { to$ } from './to';
 
-import { MinObservable } from '@stated-library/interface';
+import { Observable as SlObservable } from '@stated-library/interface';
 
-type Obs<T> = MinObservable<T> | Observable<T>;
+type Obs<T> = Observable<T> | SlObservable<T>;
 
-export declare type ValueOf<O> = O extends MinObservable<infer T>
+export declare type ValueOf<O> = O extends SlObservable<infer T>
   ? T
   : O extends Observable<infer T>
   ? T

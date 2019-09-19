@@ -1,8 +1,8 @@
-import React, { SyntheticEvent } from "react";
+import React from "react";
 import classNames from "classnames";
 
-import { todoLib } from "./state";
-import { ENTER_KEY, ESCAPE_KEY } from "./keycodes";
+import { todoLib } from "../state";
+import { ENTER_KEY, ESCAPE_KEY } from "../keycodes";
 import { Todo as TodoType } from '@stated-library/todo-lib';
 
 declare type Props = {
