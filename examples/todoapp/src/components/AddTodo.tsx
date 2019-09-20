@@ -14,12 +14,15 @@ function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
   }
 };
 
-export default () => (
-  <input
-    className="new-todo"
-    placeholder="What needs to be done?"
-    autoFocus
-    onKeyDown={handleKeyDown}
-  />
-);
+function AddTodo() {
+  return (
+    <input
+      className="new-todo"
+      placeholder="What needs to be done?"
+      autoFocus
+      onKeyDown={handleKeyDown}
+    />
+  );
+}
 
+export default AddTodo;
