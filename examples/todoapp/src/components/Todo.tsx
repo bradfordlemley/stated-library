@@ -1,9 +1,9 @@
 import React from "react";
 import classNames from "classnames";
 
-import { todoLib } from "../state";
+import { actions } from "../state";
+import { Todo as TodoType } from '../state/TodoLib';
 import { ENTER_KEY, ESCAPE_KEY } from "../keycodes";
-import { Todo as TodoType } from '@stated-library/todo-lib';
 
 declare type Props = {
   todo: TodoType,
@@ -45,10 +45,10 @@ export default class Todo extends React.Component<Props, State> {
       const val = editText && editText.trim();
       if (val) {
         if (val !== text) {
-          todoLib.updateTodo(id, {text: val});
+          actions.updateTodo(id, {text: val});
         }
       } else {
-        todoLib.destroy(id);
+        actions.destroyTodo(id);
       }
     }
     this.setState({ editing: false, editText: undefined });
@@ -78,10 +78,10 @@ export default class Todo extends React.Component<Props, State> {
             className="toggle"
             type="checkbox"
             checked={completed}
-            onChange={() => todoLib.toggle(id)}
+            onChange={() => actions.toggleTodo(id)}
           />
           <label onDoubleClick={this.handleTextDoubleClick}>{text}</label>
-          <button className="destroy" onClick={() => todoLib.destroy(id)}/>
+          <button className="destroy" onClick={() => actions.destroyTodo(id)}/>
         </div>
         <input key={id}
           ref={this.textInput}

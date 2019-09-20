@@ -1,15 +1,17 @@
-import createTodoLib from "@stated-library/todo-lib";
+import { devTools, locStorage, mapState } from "@stated-library/core";
+import createTodoLib from "./TodoLib";
 import createNavLib from "./NavLib";
 import createFilterLib from './FilterLib';
-export {VISIBILITIES} from './FilterLib';
+export { VISIBILITIES } from './FilterLib';
 
-import { devTools, locStorage, mapState } from "@stated-library/core";
+const navLib = createNavLib("todos");
+const filterLib = createFilterLib();
+const todoLib = createTodoLib();
 
-export type Page = "todos"|"acct";
-
-export const navLib = createNavLib("todos");
-export const filterLib = createFilterLib();
-export const todoLib = createTodoLib();
+devTools.connect(todoLib, "todolib");
+devTools.connect(filterLib, "filterlib");
+devTools.connect(navLib, "navlib");
+locStorage.connect(todoLib, "todolib");
 
 function getVisibleTodos(todoState: typeof todoLib.state, visibility: typeof filterLib.state.visibility) {
   switch(visibility) {
@@ -26,6 +28,7 @@ export const actions = {
   addTodo: todoLib.addTodo,
   toggleTodo: todoLib.toggle,
   destroyTodo: todoLib.destroy,
+  updateTodo: todoLib.updateTodo,
   toggleAll: todoLib.toggleAll,
   clearCompleted: todoLib.clearCompleted,
   setPage: navLib.setPage,
@@ -41,11 +44,5 @@ export const state$ = mapState(
     visibleTodos: getVisibleTodos(todoState, filterState.visibility),
   })
 );
-
-devTools.connect(todoLib, "todolib");
-devTools.connect(filterLib, "filterlib");
-devTools.connect(navLib, "navlib");
-
-locStorage.connect(todoLib, "todolib");
 
 export { locStorage };

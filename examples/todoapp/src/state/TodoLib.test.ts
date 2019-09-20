@@ -1,6 +1,6 @@
 import createTodoLib from './TodoLib';
 
-let todoLib = null;
+let todoLib: ReturnType<typeof createTodoLib>;
 
 beforeEach(() => {
   todoLib = createTodoLib();
