@@ -1,8 +1,12 @@
-import { shallowEqual, createObservable } from '@stated-library/core';
+import {
+  shallowEqual,
+  createObservable,
+  ObservableWithNext,
+} from '@stated-library/core';
 
 import {
-  StatedLibraryInterface,
-  StatedLibraryObservable,
+  StatedLibrary,
+  Observable,
   StateEvent,
 } from '@stated-library/interface';
 
@@ -13,12 +17,12 @@ export type LibOpts<RawState, State> = {
 
 export type GetUpdates<State, RawState> = (state: State) => Partial<RawState>;
 
-// Minimal Observable
-interface Observable<Value> extends StatedLibraryObservable<Value> {
-  next: (value: Value) => void;
-}
+// // Minimal Observable
+// interface Observable<Value> extends StatedLibraryObservable<Value> {
+//   next: (value: Value) => void;
+// }
 
-type ObservableCtor<Value> = (initialValue: Value) => Observable<Value>;
+type ObservableCtor<Value> = (initialValue: Value) => ObservableWithNext<Value>;
 
 const identity = x => x;
 
@@ -52,10 +56,10 @@ export function bindMethodsFromProto(obj) {
 }
 
 class StatedLibBase<RawState, State = RawState, Meta = {}>
-  implements StatedLibraryInterface<RawState, State, Meta> {
+  implements StatedLibrary<RawState, State, Meta> {
   opts: LibOpts<RawState, State>;
-  stateEvent$: StatedLibraryObservable<StateEvent<RawState, State, Meta>>;
-  state$: StatedLibraryObservable<State>;
+  stateEvent$: ObservableWithNext<StateEvent<RawState, State, Meta>>;
+  state$: ObservableWithNext<State>;
 
   constructor(initialState: RawState, opts?: LibOpts<RawState, State>) {
     this.opts = Object.assign({}, opts);
@@ -82,11 +86,9 @@ class StatedLibBase<RawState, State = RawState, Meta = {}>
         }
       : makeStateEvent(rawState, event, meta, this.opts);
     if (!Object.is(stateData.state, this.state$.value)) {
-      (this.state$ as Observable<State>).next(stateData.state);
+      this.state$.next(stateData.state);
     }
-    (this.stateEvent$ as Observable<StateEvent<RawState, State, Meta>>).next(
-      stateData
-    );
+    this.stateEvent$.next(stateData);
   }
 
   updateState(

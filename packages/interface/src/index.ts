@@ -1,3 +1,3 @@
-export * from './StatedLibraryInterface';
-
-export { default } from './StatedLibraryInterface';
+export * from './StatedLibrary';
+export * from './Observable';
+export { default } from './StatedLibrary';

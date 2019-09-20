@@ -1,8 +1,4 @@
-type ValueHandler<T> = (value: T) => void;
-type ValueHandlerObj<T> = {
-  next: ValueHandler<T>;
-};
-type Observer<T> = ValueHandler<T> | ValueHandlerObj<T>;
+import { Observable, Observer, ObserverObj } from '@stated-library/interface';
 
 /* getValue: when an observable is fed by other observables, it might 
    unsubscribe from those observables if it doesn't have any subscriptions
@@ -18,11 +14,13 @@ type Opts<Value> = {
   getValue?: () => Value;
 };
 
+export type ObservableWithNext<T> = Observable<T> & { next: (v: T) => void };
+
 export default function createObservable<Value>(
   initialValue: Value,
   opts?: Opts<Value>
-) {
-  let observers: Array<ValueHandlerObj<Value>> = [];
+): ObservableWithNext<Value> {
+  let observers: Array<ObserverObj<Value>> = [];
   let value: Value = initialValue;
   const { onSubscribe, onUnsubscribe, getValue } = Object.assign({}, opts);
   return {

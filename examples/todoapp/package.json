@@ -2,13 +2,13 @@
   "name": "@stated-library/todoapp",
   "version": "1.0.6",
   "dependencies": {
-    "@stated-library/nav-lib": "^1.0.6",
+    "@stated-library/core": "^1.0.6",
     "@stated-library/react": "^1.0.6",
-    "@stated-library/settings-lib": "^1.0.6",
-    "@stated-library/todo-lib": "^1.0.6",
     "classnames": "^2.2.6",
+    "cuid": "^2.1.6",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
+    "reselect": "^4.0.0",
     "todomvc-app-css": "^2.2.0",
     "todomvc-common": "^1.0.5"
   },

@@ -1,4 +1,4 @@
-import { StatedLibraryInterface } from '@stated-library/interface';
+import { StatedLibrary } from '@stated-library/interface';
 
 import {
   StatedLibBase,
@@ -13,14 +13,14 @@ type GetMethods<Methods, State, RawState, Meta> = (base: {
     event: string,
     meta?: Meta
   ) => void;
-  base: StatedLibraryInterface<RawState, State, Meta>;
+  base: StatedLibrary<RawState, State, Meta>;
 }) => Methods;
 
 export function createStatedLib<RawState, Meta, Methods, State = RawState>(
   initialState: RawState,
   methodsOrGetMethods: GetMethods<Methods, State, RawState, Meta> | Methods,
   opts?: LibOpts<RawState, State>
-): StatedLibraryInterface<RawState, State, Meta> & Methods;
+): StatedLibrary<RawState, State, Meta> & Methods;
 
 export function createStatedLib(initialState, methodsOrGetMethods, opts?) {
   const base = new StatedLibBase(initialState, opts);

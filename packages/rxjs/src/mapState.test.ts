@@ -12,6 +12,7 @@ import { BehaviorSubject } from 'rxjs';
 // @ts-ignore
 makeMapStateTests(mapState, value => new BehaviorSubject(value), true);
 
+// @ts-ignore
 makeMapStateTests(mapState, createObservable, true);
 
 // @ts-ignore
