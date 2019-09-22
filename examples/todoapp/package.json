@@ -2,6 +2,7 @@
   "name": "@stated-library/todoapp",
   "version": "1.0.6",
   "dependencies": {
+    "@stated-library/base": "^1.0.6",
     "@stated-library/core": "^1.0.6",
     "@stated-library/react": "^1.0.6",
     "classnames": "^2.2.6",
