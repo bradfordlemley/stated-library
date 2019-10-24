@@ -7,9 +7,16 @@ export type StateEvent<RawState, State, Meta = {}> = {
   meta?: Meta;
 };
 
-export interface StatedLibrary<RawState, State = RawState, Meta = {}> {
+export type StateObservable<RawState, State, Meta = {}> = 
+  Observable<StateEvent<State, RawState, Meta>>;
+
+export interface StatedLibrary<RawState, State = RawState, Meta = {}> extends Observable<StateEvent<RawState, State, Meta>> {
   state: State;
-  state$: Observable<State>;
+  resetState: (rawState: RawState, event: string, meta?: Meta) => void;
+}
+
+export interface StatedLibrary2<RawState, State = RawState, Meta = {}> extends Observable<State> {
+  state: State;
   stateEvent$: Observable<StateEvent<RawState, State, Meta>>;
   resetState: (rawState: RawState, event: string, meta?: Meta) => void;
 }

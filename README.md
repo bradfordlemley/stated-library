@@ -57,7 +57,7 @@ const TodoApp = () => {
 }
 ```
 
-## Using Multiple Stated Libraries
+## Combining State
 Obserservable state is **composable** and **reactive**.  Observable states can be combined together to produce a new observable state.
 
 Stated Libraries supports a `mapState` function for composing observable state.
