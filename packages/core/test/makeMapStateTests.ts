@@ -230,4 +230,69 @@ export default function makeMapStateTests(
       counter: 112,
     });
   });
+
+  if (!isRxJs) {
+    describe('Map of observables as input', () => {
+      test(`Combines observables`, () => {
+        const c1$ = createObs({ counter: 0 });
+        const c2$ = createObs({ counter: 0 });
+
+        const mapped$ = mapState({
+          c1: c1$,
+          c2: c2$,
+        });
+
+        const subscriber = jest.fn();
+        subs.push(mapped$.subscribe(subscriber));
+        expect(subscriber).toHaveBeenCalledTimes(1);
+        expect(subscriber).toHaveBeenCalledWith({
+          c1: {
+            counter: 0,
+          },
+          c2: {
+            counter: 0,
+          },
+        });
+
+        c1$.next({ counter: 1 });
+        expect(subscriber).toHaveBeenCalledTimes(2);
+        expect(subscriber).toHaveBeenNthCalledWith(2, {
+          c1: {
+            counter: 1,
+          },
+          c2: {
+            counter: 0,
+          },
+        });
+      });
+
+      test(`Combines and maps observables`, () => {
+        const c1$ = createObs({ counter: 0 });
+        const c2$ = createObs({ counter: 0 });
+
+        const mapped$ = mapState(
+          {
+            c1: c1$,
+            c2: c2$,
+          },
+          ({ c1, c2 }) => ({
+            counter: c1.counter + c2.counter,
+          })
+        );
+
+        const subscriber = jest.fn();
+        subs.push(mapped$.subscribe(subscriber));
+        expect(subscriber).toHaveBeenCalledTimes(1);
+        expect(subscriber).toHaveBeenCalledWith({
+          counter: 0,
+        });
+
+        c1$.next({ counter: 1 });
+        expect(subscriber).toHaveBeenCalledTimes(2);
+        expect(subscriber).toHaveBeenNthCalledWith(2, {
+          counter: 1,
+        });
+      });
+    });
+  }
 }

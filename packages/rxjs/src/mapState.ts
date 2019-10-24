@@ -1,6 +1,6 @@
 import { combineLatest, Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import { isArray, shallowEqual } from '@stated-library/core';
+import { isArray, shallowEqual, isObservable } from '@stated-library/core';
 import { to$ } from './to';
 
 import { Observable as SlObservable } from '@stated-library/interface';
@@ -194,14 +194,28 @@ function mapState<
 ): Observable<R>;
 
 function mapState(streamOrStreams$, mapFunc) {
-  if (!isArray(streamOrStreams$)) {
+  if (isObservable(streamOrStreams$)) {
     return to$(streamOrStreams$).pipe(
       map(mapFunc),
       distinctUntilChanged(shallowEqual)
     );
   }
-  return combineLatest(...streamOrStreams$).pipe(
-    map(mapFunc),
+  if (isArray(streamOrStreams$)) {
+    return combineLatest(...streamOrStreams$).pipe(
+      map(mapFunc),
+      distinctUntilChanged(shallowEqual)
+    );
+  }
+
+  const streamKeys = Object.keys(streamOrStreams$);
+  const streams = streamKeys.map(key => streamOrStreams$[key]);
+  const streamsToMap = streams => streams.reduce((acc, stream, i) => {
+    acc[streamKeys[i]] = stream;
+    return acc;
+  }, {});
+  const mapper = streams => mapFunc(streamsToMap(streams))
+  return combineLatest(streams).pipe(
+    map(mapper),
     distinctUntilChanged(shallowEqual)
   );
 }

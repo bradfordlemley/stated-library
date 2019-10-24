@@ -17,9 +17,10 @@
     "dist"
   ],
   "scripts": {
-    "build": "unfig build",
+    "build": "unfig build && npm run validate-types",
     "start": "unfig start",
-    "test": "unfig test"
+    "test": "unfig test",
+    "validate-types": "dtslint --localTs ../../node_modules/typescript/lib --expectOnly type-check"
   },
   "typings": "dist/index.d.ts",
   "dependencies": {
@@ -40,6 +41,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "10.0.1",
     "babel-jest": "23.6.0",
+    "dtslint": "^0.9.6",
     "eslint": "5.9.0",
     "eslint-plugin-flowtype": "3.2.0",
     "eslint-plugin-jsx-a11y": "^6.2.0",

@@ -1,17 +1,27 @@
-import * as React from 'react';
 import shallowEquals from './shallowEqual';
-import { isArray, getValueOrValues } from './utils';
+import { isArray, getValueOrValues, isObservable } from './utils';
 import createObservable from './observable';
 
 import { Observable } from '@stated-library/interface';
 
-function getMappedState(stateOrStates, mapState) {
-  return mapState(stateOrStates);
-}
-
 type Obs<T> = Observable<T>;
 
 type ValueOf<O> = O extends Observable<infer T> ? T : never;
+
+type ObjKeyof<T> = T extends object ? keyof T : never;
+type KeyofKeyof<T> = ObjKeyof<T> | { [K in keyof T]: ObjKeyof<T[K]> }[keyof T];
+type Lookup<T, K> = T extends any ? (K extends keyof T ? T[K] : never) : never;
+
+type Flatten<T extends object> = {
+  [K in KeyofKeyof<T>]: { [P in keyof T]: Lookup<T[P], K> }[keyof T]
+};
+
+export function flatten<T extends object>(objMap: T): Flatten<T> {
+  return Object.keys(objMap).reduce(
+    (acc, k) => Object.assign(acc, objMap[k]),
+    {}
+  );
+}
 
 function mapState<O1 extends Obs<any>, R>(
   stream$: O1,
@@ -193,7 +203,24 @@ function mapState<
   ) => R
 ): Observable<R>;
 
-function mapState(streamOrStreams, mapState, opts?) {
+function mapState<
+  O1 extends Obs<any>,
+  O2 extends Obs<any>,
+  O3 extends Obs<any>,
+  R
+>(
+  streams$: [O1, O2, O3],
+  mapFunc: (vals: [ValueOf<O1>, ValueOf<O2>, ValueOf<O3>]) => R
+): Observable<R>;
+
+function mapState<T>(libs: T): Obs<{ [P in keyof T]: ValueOf<T[P]> }>;
+
+function mapState<T, R>(
+  libs: T,
+  mapper: (val: { [P in keyof T]: ValueOf<T[P]> }) => R
+): Obs<R>;
+
+function mapState(streamOrStreams, mapper?, opts?) {
   let valueOrValues;
   let value;
   let subscriptions;
@@ -205,7 +232,7 @@ function mapState(streamOrStreams, mapState, opts?) {
     if (updateSourceValues) {
       valueOrValues = getValueOrValues(streamOrStreams);
     }
-    const newValue = getMappedState(valueOrValues, mapState);
+    const newValue = mapper ? mapper(valueOrValues) : valueOrValues;
     if (!shallowEquals(newValue, value)) {
       value = newValue;
     }
@@ -214,7 +241,11 @@ function mapState(streamOrStreams, mapState, opts?) {
 
   const mapped$ = createObservable(updateValue(true), {
     onUnsubscribe: () => {
-      subscriptions.map(sub => sub.unsubscribe());
+      if (isArray(subscriptions)) {
+        subscriptions.map(sub => sub.unsubscribe());
+      } else {
+        Object.keys(subscriptions).map(sub => subscriptions[sub].unsubscribe());
+      }
       isSubscribed = false;
     },
     onSubscribe: () => {
@@ -227,13 +258,21 @@ function mapState(streamOrStreams, mapState, opts?) {
             update();
           });
         });
-      } else {
+      } else if (isObservable(streamOrStreams)) {
         subscriptions = [
           streamOrStreams.subscribe(value => {
             valueOrValues = value;
             update();
           }),
         ];
+      } else {
+        subscriptions = Object.keys(streamOrStreams).reduce((subs, key) => {
+          subs[key] = streamOrStreams[key].subscribe(value => {
+            valueOrValues[key] = value;
+            update();
+          });
+          return subs;
+        }, {});
       }
       isSubscribed = true;
     },

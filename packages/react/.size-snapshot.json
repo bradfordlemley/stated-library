@@ -10,19 +10,19 @@
     "gzipped": 2866
   },
   "dist/index.production.js": {
-    "bundled": 4616,
-    "minified": 2584,
-    "gzipped": 1152
+    "bundled": 4407,
+    "minified": 2440,
+    "gzipped": 1062
   },
   "dist/index.development.js": {
-    "bundled": 4616,
-    "minified": 2584,
-    "gzipped": 1152
+    "bundled": 4407,
+    "minified": 2440,
+    "gzipped": 1062
   },
   "dist/index.es.js": {
-    "bundled": 4356,
-    "minified": 2373,
-    "gzipped": 1075,
+    "bundled": 4147,
+    "minified": 2229,
+    "gzipped": 985,
     "treeshaked": {
       "rollup": {
         "code": 43,
